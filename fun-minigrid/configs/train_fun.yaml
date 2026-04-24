@@ -1,0 +1,24 @@
+# Minimal week-2 vanilla FuN training config.
+env_id: MiniGrid-DoorKey-5x5-v0
+render_mode: null
+seed: 123
+total_episodes: 300
+max_steps: 250
+learning_rate: 0.001
+gamma: 1.0
+value_loss_coef: 0.5
+goal_update_interval: 10
+hidden_dim: 64
+goal_size: 16
+num_actions: 7
+entropy_coef: 0.01
+manager_loss_coef: 0.1
+grad_clip_norm: 1.0
+action_mode: sample
+log_path: logs/week2_train.csv
+summary_path: logs/week2_train_summary.json
+moving_avg_window: 20
+log_interval: 25
+eval_episodes: 5
+eval_seed_offset: 1000
+eval_action_mode: argmax

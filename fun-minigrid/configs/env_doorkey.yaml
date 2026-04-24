@@ -1,0 +1,4 @@
+env_id: MiniGrid-DoorKey-5x5-v0
+render_mode: null
+seed: 42
+max_steps: null
