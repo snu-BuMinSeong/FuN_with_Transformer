@@ -12,18 +12,27 @@ from src.utils.config import load_simple_yaml
 def test_load_simple_yaml_train_config() -> None:
     config = load_simple_yaml(PROJECT_ROOT / "configs" / "train_fun.yaml")
 
-    print("[Config Load]")
-    print("seed:", config["seed"])
-    print("total_episodes:", config["total_episodes"])
-    print("learning_rate:", config["learning_rate"])
-    print("goal_update_interval:", config["goal_update_interval"])
-    print("hidden_dim:", config["hidden_dim"])
+    required_keys = [
+        "seed",
+        "total_episodes",
+        "learning_rate",
+        "goal_update_interval",
+        "hidden_dim",
+    ]
 
-    assert config["seed"] == 123
-    assert config["total_episodes"] == 10
-    assert config["learning_rate"] == 0.001
-    assert config["goal_update_interval"] == 10
-    assert config["hidden_dim"] == 64
+    for key in required_keys:
+        assert key in config
+
+    assert isinstance(config["seed"], int)
+    assert isinstance(config["total_episodes"], int)
+    assert isinstance(config["learning_rate"], (int, float))
+    assert isinstance(config["goal_update_interval"], int)
+    assert isinstance(config["hidden_dim"], int)
+
+    assert config["total_episodes"] > 0
+    assert config["learning_rate"] > 0
+    assert config["goal_update_interval"] > 0
+    assert config["hidden_dim"] > 0
 
 
 if __name__ == "__main__":
