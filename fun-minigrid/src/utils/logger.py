@@ -71,6 +71,16 @@ TRAIN_LOG_FIELDS = [
     "loss_moving_avg",
 ]
 
+EVAL_LOG_FIELDS = [
+    "episode",
+    "eval_success_rate",
+    "eval_mean_return",
+    "eval_std_return",
+    "eval_mean_episode_length",
+    "eval_std_episode_length",
+    "eval_episode_seeds",
+]
+
 
 def ensure_log_dir(log_path: str) -> None:
     """Create the parent directory for a log file if needed."""
@@ -102,6 +112,21 @@ def append_training_log(log_path: str, episode_result: dict[str, Any]) -> None:
 
     with path.open("a", newline="", encoding="utf-8") as file:
         writer = csv.DictWriter(file, fieldnames=TRAIN_LOG_FIELDS)
+        if write_header:
+            writer.writeheader()
+        writer.writerow(row)
+
+
+def append_eval_log(log_path: str, eval_result: dict[str, Any]) -> None:
+    """Append one evaluation result to a CSV log file."""
+    ensure_log_dir(log_path)
+
+    path = Path(log_path)
+    write_header = not path.exists() or path.stat().st_size == 0
+    row = {field: eval_result.get(field, "") for field in EVAL_LOG_FIELDS}
+
+    with path.open("a", newline="", encoding="utf-8") as file:
+        writer = csv.DictWriter(file, fieldnames=EVAL_LOG_FIELDS)
         if write_header:
             writer.writeheader()
         writer.writerow(row)

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 from typing import Any
 
 import torch
@@ -11,8 +12,9 @@ from src.models.fun import FuNModel
 from src.policies.fun_policy import FuNPolicy
 from src.training.evaluation import build_eval_comparison, build_eval_comparison_text, evaluate_policy
 from src.training.trainer import train
+from src.utils.checkpoint import save_checkpoint
 from src.utils.config import load_simple_yaml
-from src.utils.logger import append_training_log, write_json_summary
+from src.utils.logger import append_eval_log, append_training_log, write_json_summary
 from src.utils.seed import set_seed
 
 
@@ -70,6 +72,19 @@ def build_progress_line(
     )
 
 
+def normalize_eval_result(episode: int, eval_result: dict[str, Any]) -> dict[str, Any]:
+    """Map evaluation.py metrics to the baseline eval CSV schema."""
+    return {
+        "episode": episode,
+        "eval_success_rate": float(eval_result["mean_success_rate"]),
+        "eval_mean_return": float(eval_result["mean_reward"]),
+        "eval_std_return": float(eval_result["std_reward"]),
+        "eval_mean_episode_length": float(eval_result["mean_episode_length"]),
+        "eval_std_episode_length": float(eval_result["std_episode_length"]),
+        "eval_episode_seeds": ",".join(str(seed) for seed in eval_result["episode_seeds"]),
+    }
+
+
 def main() -> None:
     """Train vanilla FuN from config and save per-episode logs."""
     args = parse_args()
@@ -78,12 +93,20 @@ def main() -> None:
     seed = int(cfg.get("seed", 123))
     moving_avg_window = int(cfg.get("moving_avg_window", 5))
     log_interval = int(cfg.get("log_interval", 25))
-    log_path = str(cfg.get("log_path", "logs/week2_train.csv"))
-    summary_path = str(cfg.get("summary_path", "logs/week2_train_summary.json"))
+    log_dir = Path(str(cfg.get("log_dir", "logs")))
+    checkpoint_dir = Path(str(cfg.get("checkpoint_dir", "checkpoints")))
+    log_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+    log_path = str(cfg.get("log_path", log_dir / "train.csv"))
+    eval_log_path = str(cfg.get("eval_log_path", log_dir / "eval.csv"))
+    summary_path = str(cfg.get("summary_path", log_dir / "summary.json"))
+    last_checkpoint_path = checkpoint_dir / "last.pt"
+    best_checkpoint_path = checkpoint_dir / "best.pt"
+    total_episodes = int(cfg.get("total_episodes", 10))
+    eval_interval = int(cfg.get("eval_interval", total_episodes))
     eval_episodes = int(cfg.get("eval_episodes", 1))
     eval_seed_offset = int(cfg.get("eval_seed_offset", 1000))
     max_steps = int(cfg.get("max_steps", 100)) if cfg.get("max_steps") is not None else None
-    total_episodes = int(cfg.get("total_episodes", 10))
     set_seed(seed)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -95,7 +118,7 @@ def main() -> None:
     model = FuNModel(
         goal_update_interval=int(cfg.get("goal_update_interval", 10)),
         hidden_dim=int(cfg.get("hidden_dim", 64)),
-        goal_size=int(cfg.get("goal_size", 16)),
+        goal_size=int(cfg.get("goal_size", cfg.get("goal_dim", 16))),
         num_actions=int(cfg.get("num_actions", 7)),
     ).to(device)
     policy = FuNPolicy(
@@ -126,6 +149,7 @@ def main() -> None:
         f"goal_update_interval={cfg.get('goal_update_interval')} "
         f"hidden_dim={cfg.get('hidden_dim')} "
         f"moving_avg_window={moving_avg_window} "
+        f"eval_interval={eval_interval} "
         f"eval_episodes={eval_episodes} "
         f"eval_seed_offset={eval_seed_offset} "
         f"log_interval={log_interval}"
@@ -153,8 +177,11 @@ def main() -> None:
         success_history: list[float] = []
         loss_history: list[float] = []
         results: list[dict[str, Any]] = []
+        eval_results: list[dict[str, Any]] = []
+        best_success_rate = float("-inf")
 
         def on_episode_end(result: dict[str, Any]) -> None:
+            nonlocal best_success_rate
             reward_history.append(float(result["total_reward"]))
             success_history.append(1.0 if bool(result["success"]) else 0.0)
             loss_history.append(float(result["total_loss"]))
@@ -182,6 +209,41 @@ def main() -> None:
                     )
                 )
 
+            episode = int(result["episode"])
+            if eval_interval > 0 and episode % eval_interval == 0:
+                interval_eval = evaluate_policy(
+                    env=env,
+                    policy=eval_policy,
+                    num_episodes=eval_episodes,
+                    max_steps=max_steps,
+                    seed=seed + eval_seed_offset + episode,
+                )
+                eval_row = normalize_eval_result(episode, interval_eval)
+                append_eval_log(eval_log_path, eval_row)
+                eval_results.append({**eval_row, "raw_eval": interval_eval})
+
+                current_success_rate = float(eval_row["eval_success_rate"])
+                if current_success_rate >= best_success_rate:
+                    best_success_rate = current_success_rate
+                    save_checkpoint(
+                        best_checkpoint_path,
+                        model=model,
+                        optimizer=optimizer,
+                        episode=episode,
+                        config=cfg,
+                        best_success_rate=best_success_rate,
+                        extra={"eval": eval_row},
+                    )
+                save_checkpoint(
+                    last_checkpoint_path,
+                    model=model,
+                    optimizer=optimizer,
+                    episode=episode,
+                    config=cfg,
+                    best_success_rate=best_success_rate,
+                    extra={"eval": eval_row},
+                )
+
         train(
             env=env,
             policy=policy,
@@ -207,6 +269,16 @@ def main() -> None:
             max_steps=max_steps,
             seed=seed + 2 * eval_seed_offset,
         )
+        final_episode_checkpoint_path = checkpoint_dir / f"episode_{total_episodes}.pt"
+        save_checkpoint(
+            final_episode_checkpoint_path,
+            model=model,
+            optimizer=optimizer,
+            episode=total_episodes,
+            config=cfg,
+            best_success_rate=best_success_rate if best_success_rate != float("-inf") else None,
+            extra={"final_eval": normalize_eval_result(total_episodes, post_eval)},
+        )
         eval_comparison = build_eval_comparison(pre_eval, post_eval)
         comparison_text = build_eval_comparison_text(pre_eval, post_eval)
         print(
@@ -221,12 +293,21 @@ def main() -> None:
         print(f"comparison={comparison_text}")
 
         summary: dict[str, Any] = {
+            "config": cfg,
             "config_path": args.config,
             "seed": seed,
             "num_episodes": len(results),
+            "final_episode": len(results),
             "moving_avg_window": moving_avg_window,
             "eval_episodes": eval_episodes,
             "eval_seed_offset": eval_seed_offset,
+            "best_success_rate": best_success_rate if best_success_rate != float("-inf") else None,
+            "best_checkpoint_path": str(best_checkpoint_path),
+            "last_checkpoint_path": str(last_checkpoint_path),
+            "final_episode_checkpoint_path": str(final_episode_checkpoint_path),
+            "train_log_path": log_path,
+            "eval_log_path": eval_log_path,
+            "final_eval": normalize_eval_result(total_episodes, post_eval),
             "final_reward_moving_avg": reward_history and compute_moving_average(reward_history, moving_avg_window),
             "final_success_moving_avg": success_history
             and compute_moving_average(success_history, moving_avg_window),
@@ -274,6 +355,7 @@ def main() -> None:
             else 0.0,
             "pre_eval": pre_eval,
             "post_eval": post_eval,
+            "interval_evals": eval_results,
             "eval_comparison": eval_comparison,
             "comparison_text": comparison_text,
             "results": [

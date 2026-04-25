@@ -7,6 +7,8 @@ __pycache__/
 .idea/
 .vscode/
 logs/
+checkpoints/
+*.pt
 wandb/
 runs/
 *.log

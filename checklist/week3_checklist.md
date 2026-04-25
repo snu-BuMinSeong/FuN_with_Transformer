@@ -30,24 +30,60 @@
 
 ---
 
+## GCP 학습 실행 계획
+
+3주차 baseline 실험은 로컬에서 짧은 정상 동작 점검을 먼저 수행하고, 이후 장기 학습과 seed 반복 실험은 GCP VM에서 실행한다.
+
+- [x] Google Cloud SDK 설치 및 기본 프로젝트 설정 확인
+- [x] VS Code Remote SSH 확장 설치 확인
+- [x] GCP VM SSH 접속 설정 완료
+- [x] SSH config 권한 및 사용자명 문제 수정
+- [x] VS Code에서 GCP VM 원격 폴더 접속 가능 상태 확인
+- [ ] GCP VM에서 저장소 코드 준비
+- [ ] GCP VM Python 가상환경 구성
+- [ ] GCP VM에서 `requirements.txt` 또는 필요한 패키지 설치
+- [ ] GCP VM에서 `nvidia-smi` 또는 CPU/GPU 실행 환경 확인
+- [ ] GCP VM에서 짧은 smoke test 학습 실행
+- [ ] GCP VM에서 seed별 baseline 장기 학습 실행
+- [ ] GCP VM 학습 로그와 checkpoint 저장 경로 정리
+
+### 현재 접속 정보
+
+```text
+project: project-ed2a3aec-0315-4f0f-95a
+zone: asia-northeast3-b
+host: instance-20260425-090526.asia-northeast3-b.project-ed2a3aec-0315-4f0f-95a
+remote user: fumin0193
+remote workspace: /home/fumin0193
+```
+
+### 운영 원칙
+
+- 로컬에서는 코드 수정, 짧은 실행 검증, 로그 형식 점검을 우선 수행한다.
+- GCP에서는 시간이 오래 걸리는 baseline 학습, seed 반복 실험, checkpoint 생성 작업을 수행한다.
+- GCP 학습은 SSH 연결이 끊겨도 유지되도록 `tmux` 또는 `nohup` 기반으로 실행한다.
+- 학습 결과는 seed별로 `logs/`와 `checkpoints/`를 분리해 저장한다.
+
+---
+
 ## 1. 학습 정상 동작 점검
 
-- [ ] 현재 `train.py`를 다시 실행해 vanilla FuN 학습이 에러 없이 도는지 확인
-- [ ] `total_loss`가 NaN 없이 기록되는지 확인
-- [ ] `worker_loss`가 NaN 없이 기록되는지 확인
-- [ ] `value_loss`가 NaN 없이 기록되는지 확인
-- [ ] `manager_loss`가 NaN 없이 기록되는지 확인
-- [ ] `entropy_mean`이 너무 빠르게 0에 가까워지지 않는지 확인
-- [ ] `grad_norm`이 폭발하지 않는지 확인
-- [ ] encoder / manager / worker / value head에 gradient가 흐르는지 확인
-- [ ] action이 특정 action 하나로만 고정되지 않는지 확인
-- [ ] goal vector norm이 계속 0이거나 고정되지 않는지 확인
+- [x] 현재 `train.py`를 다시 실행해 vanilla FuN 학습이 에러 없이 도는지 확인
+- [x] `total_loss`가 NaN 없이 기록되는지 확인
+- [x] `worker_loss`가 NaN 없이 기록되는지 확인
+- [x] `value_loss`가 NaN 없이 기록되는지 확인
+- [x] `manager_loss`가 NaN 없이 기록되는지 확인
+- [x] `entropy_mean`이 너무 빠르게 0에 가까워지지 않는지 확인
+- [x] `grad_norm`이 폭발하지 않는지 확인
+- [x] encoder / manager / worker / value head에 gradient가 흐르는지 확인
+- [x] action이 특정 action 하나로만 고정되지 않는지 확인
+- [x] goal vector norm이 계속 0이거나 고정되지 않는지 확인
 
 ### 완료 기준
 
-- [ ] 100 episode 이상 학습이 중단 없이 실행됨
-- [ ] loss, entropy, grad norm이 로그에 정상 저장됨
-- [ ] NaN 또는 inf가 발생하지 않음
+- [x] 100 episode 이상 학습이 중단 없이 실행됨
+- [x] loss, entropy, grad norm이 로그에 정상 저장됨
+- [x] NaN 또는 inf가 발생하지 않음
 
 ---
 
@@ -73,23 +109,23 @@
 
 ## 3. 실험 설정 파일 정리
 
-- [ ] `configs/train_fun.yaml`을 3주차 baseline 실험용으로 정리
-- [ ] `env_id` 명시
-- [ ] `total_episodes` 명시
-- [ ] `eval_interval` 명시
-- [ ] `eval_episodes` 명시
-- [ ] `seed` 명시
-- [ ] `learning_rate` 명시
-- [ ] `gamma` 명시
-- [ ] `goal_update_interval` 명시
-- [ ] `hidden_dim` 명시
-- [ ] `goal_size` 또는 `goal_dim` 명시
-- [ ] `entropy_coef` 명시
-- [ ] `value_loss_coef` 명시
-- [ ] `manager_loss_coef` 명시
-- [ ] `grad_clip_norm` 명시
-- [ ] `log_dir` 명시
-- [ ] `checkpoint_dir` 명시
+- [x] `configs/train_fun_baseline_seed*.yaml`을 3주차 baseline 실험용으로 정리
+- [x] `env_id` 명시
+- [x] `total_episodes` 명시
+- [x] `eval_interval` 명시
+- [x] `eval_episodes` 명시
+- [x] `seed` 명시
+- [x] `learning_rate` 명시
+- [x] `gamma` 명시
+- [x] `goal_update_interval` 명시
+- [x] `hidden_dim` 명시
+- [x] `goal_size` 또는 `goal_dim` 명시
+- [x] `entropy_coef` 명시
+- [x] `value_loss_coef` 명시
+- [x] `manager_loss_coef` 명시
+- [x] `grad_clip_norm` 명시
+- [x] `log_dir` 명시
+- [x] `checkpoint_dir` 명시
 
 ### 권장 기본값
 
@@ -119,8 +155,8 @@ checkpoint_dir: checkpoints/baseline_fun
 
 ### 완료 기준
 
-- [ ] 같은 config로 실험을 재현할 수 있음
-- [ ] 4주차 memory ablation 실험에서 같은 config를 재사용할 수 있음
+- [x] 같은 config로 실험을 재현할 수 있음
+- [x] 4주차 memory ablation 실험에서 같은 config를 재사용할 수 있음
 
 ---
 
@@ -160,17 +196,17 @@ checkpoint_dir: checkpoints/baseline_fun
 
 2주차에서 아직 완료되지 않은 항목이므로 3주차 필수 작업으로 처리한다.
 
-- [ ] `src/utils/checkpoint.py` 또는 유사 파일 추가
-- [ ] `save_checkpoint()` 구현
-- [ ] `load_checkpoint()` 구현
-- [ ] latest checkpoint 저장
-- [ ] best checkpoint 저장
-- [ ] 일정 episode마다 checkpoint 저장
-- [ ] checkpoint에 model state 저장
-- [ ] checkpoint에 optimizer state 저장
-- [ ] checkpoint에 episode 저장
-- [ ] checkpoint에 config 저장
-- [ ] checkpoint에 best metric 저장
+- [x] `src/utils/checkpoint.py` 또는 유사 파일 추가
+- [x] `save_checkpoint()` 구현
+- [x] `load_checkpoint()` 구현
+- [x] latest checkpoint 저장
+- [x] best checkpoint 저장
+- [x] 일정 episode마다 checkpoint 저장
+- [x] checkpoint에 model state 저장
+- [x] checkpoint에 optimizer state 저장
+- [x] checkpoint에 episode 저장
+- [x] checkpoint에 config 저장
+- [x] checkpoint에 best metric 저장
 - [ ] 저장된 checkpoint로 evaluation 실행 가능하게 연결
 
 ### 권장 저장 구조
@@ -197,7 +233,7 @@ checkpoints/
 
 ### 완료 기준
 
-- [ ] 학습 중 checkpoint가 생성됨
+- [x] 학습 중 checkpoint가 생성됨
 - [ ] `last.pt`를 불러와 evaluation 가능
 - [ ] `best.pt`를 불러와 evaluation 가능
 
@@ -205,23 +241,23 @@ checkpoints/
 
 ## 6. evaluation loop 정리
 
-- [ ] 학습 중 evaluation을 일정 interval마다 실행
-- [ ] evaluation에서는 deterministic action 사용 여부 결정
-- [ ] `action_mode="argmax"` 평가 가능하게 확인
-- [ ] evaluation seed 고정
-- [ ] evaluation episode 수 고정
-- [ ] train log와 eval log를 분리 저장
-- [ ] `eval_success_rate` 저장
-- [ ] `eval_mean_return` 저장
-- [ ] `eval_std_return` 저장
-- [ ] `eval_mean_episode_length` 저장
-- [ ] `eval_std_episode_length` 저장
-- [ ] `eval_episode_seeds` 저장
+- [x] 학습 중 evaluation을 일정 interval마다 실행
+- [x] evaluation에서는 deterministic action 사용 여부 결정
+- [x] `action_mode="argmax"` 평가 가능하게 확인
+- [x] evaluation seed 고정
+- [x] evaluation episode 수 고정
+- [x] train log와 eval log를 분리 저장
+- [x] `eval_success_rate` 저장
+- [x] `eval_mean_return` 저장
+- [x] `eval_std_return` 저장
+- [x] `eval_mean_episode_length` 저장
+- [x] `eval_std_episode_length` 저장
+- [x] `eval_episode_seeds` 저장
 
 ### 완료 기준
 
-- [ ] 학습 로그와 평가 로그가 분리되어 저장됨
-- [ ] 4주차 ablation 모델과 같은 평가 코드로 비교 가능함
+- [x] 학습 로그와 평가 로그가 분리되어 저장됨
+- [x] 4주차 ablation 모델과 같은 평가 코드로 비교 가능함
 
 ---
 
@@ -237,7 +273,10 @@ checkpoints/
 
 ### 해야 할 일
 
-- [ ] seed 1로 baseline 학습 실행
+- [x] seed 1, 11, 44 baseline config 생성
+- [x] seed 1, 11, 44 실행 스크립트 생성
+- [x] GCP/tmux 실행 명령 문서화
+- [x] seed 1로 baseline 학습 실행
 - [ ] seed 11로 baseline 학습 실행
 - [ ] seed 44로 baseline 학습 실행
 - [ ] 각 seed별 train log 저장
