@@ -145,3 +145,208 @@
 config 로더 확인 결과 세 config 모두 정상적으로 읽혔고, 각 config의 `total_episodes`가 1000으로 설정되어 있음을 확인했다.
 
 아직 남은 작업은 GCP VM에서 seed 1, 11, 44 장기 학습을 실제로 실행하고, seed별 `train.csv`, `eval.csv`, `summary.json`, checkpoint 결과를 확보하는 것이다.
+
+---
+
+# 2026-04-25 작업 로그: Baseline 장기 학습 실행 및 결과 회수
+
+## 작업 목적
+
+MiniGrid DoorKey 환경에서 vanilla FuN baseline을 seed 1, 11, 44로 장기 학습하고, 4주차 memory ablation 비교 기준으로 사용할 결과 파일을 확보했다.
+
+이번 작업에서는 학습 알고리즘을 수정하지 않았다. Transformer Manager, Memory Ablation, PPO 등 다른 알고리즘은 구현하지 않았다.
+
+## 로컬 코드 정리
+
+다음 기능을 추가하거나 정리했다.
+
+- `evaluate_checkpoint.py`
+  - 저장된 checkpoint를 config 기준으로 불러와 evaluation 수행
+  - `--config`, `--checkpoint`, `--output`, `--episodes`, `--seed-offset`, `--action-mode` 지원
+- `tests/test_evaluate_checkpoint.py`
+  - 임시 checkpoint 저장 후 `evaluate_checkpoint()`가 로드 및 평가를 수행하는지 확인
+- `aggregate_baseline_results.py`
+  - seed별 `eval.csv`, `summary.json`을 읽어 결과 표 생성
+  - `results/week3_baseline_results.csv`
+  - `results/week3_baseline_results.md`
+  - `results/week3_baseline_summary.md`
+- `plot_baseline_results.py`
+  - seed별 eval curve 생성
+  - success rate, mean return, episode length 그래프 저장
+- seed 실행 스크립트 정리
+  - `scripts/run_seed1.sh`
+  - `scripts/run_seed11.sh`
+  - `scripts/run_seed44.sh`
+  - `scripts/run_baseline_seeds.sh`
+- 실행/수집 문서 정리
+  - `results/week3_baseline_run_commands.md`
+  - `results/week3_checkpoint_eval_commands.md`
+  - `results/week3_result_collection_commands.md`
+  - `results/week3_baseline_summary_template.md`
+
+## 로컬 검증
+
+실행한 주요 검증은 다음과 같다.
+
+```bash
+python -m pytest tests/test_checkpoint.py
+python -m pytest tests/test_evaluate_checkpoint.py
+python -m py_compile aggregate_baseline_results.py
+python -m py_compile plot_baseline_results.py
+```
+
+로컬에서 기존 seed 1 checkpoint를 사용해 `last.pt`, `best.pt` evaluation도 확인했다.
+
+## GCP 디스크 확장
+
+GCP VM의 루트 디스크가 가득 차 있어 학습을 시작할 수 없었다.
+
+확인 당시 상태:
+
+```text
+/dev/sda1  9.7G  9.2G  0  100%  /
+```
+
+GCP boot disk를 100GB로 확장했다.
+
+- disk name: `instance-20260425-090526`
+- zone: `asia-northeast3-b`
+- project: `project-ed2a3aec-0315-4f0f-95a`
+- size: `100GB`
+
+VM 내부에서 `growpart`와 `resize2fs`로 루트 파티션과 ext4 파일시스템을 확장했다.
+
+확장 후 상태:
+
+```text
+/dev/sda1  99G  9.2G  85G  10%  /
+```
+
+## GCP 저장소 재업로드
+
+기존 원격 저장소가 오래된 상태였고, 사용자가 삭제를 허용했다.
+
+삭제한 원격 경로:
+
+```text
+/home/fumin0193/FuN_with_Transformer
+```
+
+이후 현재 로컬의 `fun-minigrid` 코드 중 학습에 필요한 파일을 다시 업로드했다.
+
+원격 프로젝트 경로:
+
+```text
+/home/fumin0193/FuN_with_Transformer/fun-minigrid
+```
+
+기존 전역 가상환경을 프로젝트 `.venv`로 연결했다.
+
+```bash
+ln -sfn /home/fumin0193/.venv .venv
+```
+
+확인한 환경:
+
+- Python: `3.13.5`
+- torch: `2.6.0+cu124`
+- CUDA available: `True`
+- GPU: Tesla T4
+- `gymnasium`, `minigrid` import 가능
+
+## GCP 학습 실행
+
+학습 전 다음을 확인했다.
+
+```bash
+python -m py_compile train.py evaluate_checkpoint.py aggregate_baseline_results.py plot_baseline_results.py
+python -m pytest tests/test_checkpoint.py
+```
+
+세 seed를 각각 tmux 세션에서 실행했다.
+
+```bash
+tmux new -d -s fun_seed1  "cd /home/fumin0193/FuN_with_Transformer/fun-minigrid && source .venv/bin/activate && python train.py --config configs/train_fun_baseline_seed1.yaml 2>&1 | tee logs/baseline_fun/seed_1/run_stdout.log"
+tmux new -d -s fun_seed11 "cd /home/fumin0193/FuN_with_Transformer/fun-minigrid && source .venv/bin/activate && python train.py --config configs/train_fun_baseline_seed11.yaml 2>&1 | tee logs/baseline_fun/seed_11/run_stdout.log"
+tmux new -d -s fun_seed44 "cd /home/fumin0193/FuN_with_Transformer/fun-minigrid && source .venv/bin/activate && python train.py --config configs/train_fun_baseline_seed44.yaml 2>&1 | tee logs/baseline_fun/seed_44/run_stdout.log"
+```
+
+실행 중 GPU에서 Python process 3개가 확인되었고, 각 seed의 `train.csv`가 증가하는 것을 확인했다.
+
+## 학습 완료 및 결과 생성
+
+학습 완료 후 tmux 세션은 종료되어 있었다.
+
+각 seed에서 다음 파일 생성을 확인했다.
+
+- `logs/baseline_fun/seed_x/train.csv`
+- `logs/baseline_fun/seed_x/eval.csv`
+- `logs/baseline_fun/seed_x/summary.json`
+- `logs/baseline_fun/seed_x/run_stdout.log`
+- `checkpoints/baseline_fun/seed_x/best.pt`
+- `checkpoints/baseline_fun/seed_x/last.pt`
+- `checkpoints/baseline_fun/seed_x/episode_1000.pt`
+
+GCP에서 결과 집계와 그래프 생성을 실행했다.
+
+```bash
+python aggregate_baseline_results.py
+python plot_baseline_results.py
+```
+
+또한 각 seed의 `best.pt`를 다시 evaluation했다.
+
+```bash
+python evaluate_checkpoint.py --config configs/train_fun_baseline_seed1.yaml  --checkpoint checkpoints/baseline_fun/seed_1/best.pt  --output logs/baseline_fun/seed_1/checkpoint_eval_best.json
+python evaluate_checkpoint.py --config configs/train_fun_baseline_seed11.yaml --checkpoint checkpoints/baseline_fun/seed_11/best.pt --output logs/baseline_fun/seed_11/checkpoint_eval_best.json
+python evaluate_checkpoint.py --config configs/train_fun_baseline_seed44.yaml --checkpoint checkpoints/baseline_fun/seed_44/best.pt --output logs/baseline_fun/seed_44/checkpoint_eval_best.json
+```
+
+## 로컬로 회수한 결과
+
+GCP에서 생성된 결과 파일을 로컬 저장소로 내려받았다.
+
+```text
+fun-minigrid/logs/baseline_fun/seed_1/
+fun-minigrid/logs/baseline_fun/seed_11/
+fun-minigrid/logs/baseline_fun/seed_44/
+fun-minigrid/checkpoints/baseline_fun/seed_1/
+fun-minigrid/checkpoints/baseline_fun/seed_11/
+fun-minigrid/checkpoints/baseline_fun/seed_44/
+fun-minigrid/results/
+fun-minigrid/figures/baseline_fun/
+```
+
+주요 결과 파일:
+
+- `results/week3_baseline_results.csv`
+- `results/week3_baseline_results.md`
+- `results/week3_baseline_summary.md`
+- `figures/baseline_fun/eval_success_rate.png`
+- `figures/baseline_fun/eval_mean_return.png`
+- `figures/baseline_fun/eval_episode_length.png`
+
+## 최종 결과
+
+장기 학습 결과 집계는 다음과 같다.
+
+| Seed | Final Success Rate | Final Mean Return | Final Episode Length | Best Success Rate |
+|---:|---:|---:|---:|---:|
+| 1 | 0.000000 | 0.000000 | 250.000000 | 0.000000 |
+| 11 | 0.000000 | 0.000000 | 250.000000 | 0.000000 |
+| 44 | 0.000000 | 0.000000 | 250.000000 | 0.000000 |
+| Mean | 0.000000 | 0.000000 | 250.000000 | 0.000000 |
+
+`best.pt` checkpoint evaluation 결과도 세 seed 모두 다음과 같았다.
+
+- mean reward: `0.000`
+- success rate: `0.000`
+- mean episode length: `250.000`
+
+## 해석 메모
+
+- vanilla FuN baseline은 1000 episode 기준으로 DoorKey sparse reward 문제를 해결하지 못했다.
+- evaluation에서 모든 seed의 final success rate가 0으로 유지되었다.
+- episode length가 250으로 고정되어, 평가 episode 대부분이 max step까지 진행된 것으로 보인다.
+- 이 결과는 4주차 memory ablation과 비교할 baseline으로 사용할 수 있다.
+- 다만 baseline 자체의 성능이 낮으므로, ablation 비교 시 성능 개선/저하보다 학습 안정성, reward signal 빈도, seed별 편차를 함께 봐야 한다.

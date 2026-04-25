@@ -459,3 +459,87 @@ logs/
 3. success rate / return / episode length 그래프
 
 이 세 가지가 확보되면 4주차에 memory ablation을 같은 조건에서 비교할 수 있다.
+
+---
+
+# 2026-04-25 업데이트: Week 3 Baseline 실행 및 결과 정리
+
+## 완료된 핵심 작업
+
+- [x] `evaluate_checkpoint.py` 추가
+- [x] 저장된 `last.pt`, `best.pt`를 불러와 evaluation 가능하도록 구현
+- [x] `tests/test_evaluate_checkpoint.py` 추가
+- [x] checkpoint 저장/로드 테스트 통과 확인
+- [x] seed별 실행 스크립트 정리
+  - `fun-minigrid/scripts/run_seed1.sh`
+  - `fun-minigrid/scripts/run_seed11.sh`
+  - `fun-minigrid/scripts/run_seed44.sh`
+  - `fun-minigrid/scripts/run_baseline_seeds.sh`
+- [x] GCP 실행 문서 보강
+  - `fun-minigrid/results/week3_baseline_run_commands.md`
+  - `fun-minigrid/results/week3_checkpoint_eval_commands.md`
+  - `fun-minigrid/results/week3_result_collection_commands.md`
+- [x] seed별 결과 수집 스크립트 추가: `fun-minigrid/aggregate_baseline_results.py`
+- [x] baseline evaluation curve 생성 스크립트 추가: `fun-minigrid/plot_baseline_results.py`
+- [x] baseline summary template 및 실제 summary 생성
+  - `fun-minigrid/results/week3_baseline_summary_template.md`
+  - `fun-minigrid/results/week3_baseline_summary.md`
+
+## GCP 실행 상태
+
+- [x] GCP VM 접속 확인
+  - host: `instance-20260425-090526.asia-northeast3-b.project-ed2a3aec-0315-4f0f-95a`
+  - hostname: `instance-20260425-090526`
+- [x] GCP boot disk를 100GB로 확장
+  - `/dev/sda1`: 약 99GB
+  - 사용량 확인 시 약 85GB 여유 공간 확보
+- [x] 기존 원격 `FuN_with_Transformer` 폴더 삭제 후 현재 로컬 `fun-minigrid` 코드 재업로드
+- [x] GCP Python/CUDA 환경 확인
+  - Python: `3.13.5`
+  - torch: `2.6.0+cu124`
+  - CUDA available: `True`
+  - GPU: Tesla T4
+- [x] 학습 전 문법 검사 실행
+  - `python -m py_compile train.py evaluate_checkpoint.py aggregate_baseline_results.py plot_baseline_results.py`
+- [x] checkpoint 테스트 실행
+  - `python -m pytest tests/test_checkpoint.py`
+
+## Seed별 장기 학습
+
+- [x] seed 1 장기 학습 실행 완료
+- [x] seed 11 장기 학습 실행 완료
+- [x] seed 44 장기 학습 실행 완료
+- [x] 각 seed별 `train.csv` 생성
+- [x] 각 seed별 `eval.csv` 생성
+- [x] 각 seed별 `summary.json` 생성
+- [x] 각 seed별 `best.pt`, `last.pt`, `episode_1000.pt` 생성
+
+## 로컬로 가져온 결과 파일
+
+- [x] `fun-minigrid/logs/baseline_fun/seed_1/`
+- [x] `fun-minigrid/logs/baseline_fun/seed_11/`
+- [x] `fun-minigrid/logs/baseline_fun/seed_44/`
+- [x] `fun-minigrid/checkpoints/baseline_fun/seed_1/`
+- [x] `fun-minigrid/checkpoints/baseline_fun/seed_11/`
+- [x] `fun-minigrid/checkpoints/baseline_fun/seed_44/`
+- [x] `fun-minigrid/results/week3_baseline_results.csv`
+- [x] `fun-minigrid/results/week3_baseline_results.md`
+- [x] `fun-minigrid/results/week3_baseline_summary.md`
+- [x] `fun-minigrid/figures/baseline_fun/eval_success_rate.png`
+- [x] `fun-minigrid/figures/baseline_fun/eval_mean_return.png`
+- [x] `fun-minigrid/figures/baseline_fun/eval_episode_length.png`
+
+## 최종 Baseline 결과
+
+| Seed | Final Success Rate | Final Mean Return | Final Episode Length | Best Success Rate |
+|---:|---:|---:|---:|---:|
+| 1 | 0.000000 | 0.000000 | 250.000000 | 0.000000 |
+| 11 | 0.000000 | 0.000000 | 250.000000 | 0.000000 |
+| 44 | 0.000000 | 0.000000 | 250.000000 | 0.000000 |
+| Mean | 0.000000 | 0.000000 | 250.000000 | 0.000000 |
+
+## 다음 작업
+
+- [ ] Week 3 summary의 관찰 섹션에 sparse reward 한계와 실패 양상 해석 추가
+- [ ] baseline 결과를 기준으로 Week 4 memory ablation 실험 config 준비
+- [ ] ablation 구현 전 vanilla FuN Manager/hidden state 사용 지점 재확인
