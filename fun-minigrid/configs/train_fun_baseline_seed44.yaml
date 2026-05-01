@@ -23,7 +23,7 @@ manager_loss_coef: 0.1
 grad_clip_norm: 1.0
 
 action_mode: sample
-eval_action_mode: argmax
+eval_action_mode: sample
 moving_avg_window: 20
 log_interval: 50
 eval_seed_offset: 1000

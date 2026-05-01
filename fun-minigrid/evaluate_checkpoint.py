@@ -36,6 +36,7 @@ def build_model_from_config(config: dict[str, Any], device: torch.device | str |
         hidden_dim=int(config.get("hidden_dim", 64)),
         goal_size=int(config.get("goal_size", config.get("goal_dim", 16))),
         num_actions=int(config.get("num_actions", 7)),
+        manager_type=str(config.get("manager_type", "recurrent")),
     )
     if device is not None:
         model = model.to(device)

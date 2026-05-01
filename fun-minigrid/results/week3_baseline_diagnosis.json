@@ -1,0 +1,619 @@
+{
+  "seeds": [
+    {
+      "seed": 1,
+      "paths": {
+        "train_csv": "logs\\baseline_fun\\seed_1\\train.csv",
+        "eval_csv": "logs\\baseline_fun\\seed_1\\eval.csv",
+        "summary_json": "logs\\baseline_fun\\seed_1\\summary.json"
+      },
+      "train": {
+        "rows": 1000,
+        "success_column": true,
+        "success_total": 164,
+        "success_rate": 0.164,
+        "reward_column": "total_reward",
+        "total_reward": {
+          "min": 0.0,
+          "max": 0.9424,
+          "mean": 0.07708159999999999
+        },
+        "episode_length": {
+          "min": 16.0,
+          "max": 250.0,
+          "mean": 233.144
+        },
+        "final_50_success_rate": 0.5,
+        "final_50_mean_reward": 0.261536,
+        "has_reward_signal_true": 164,
+        "has_return_signal_true": 164,
+        "nonzero_reward_fraction_mean": 0.0014995879105868088,
+        "nonzero_return_fraction_mean": 0.164,
+        "total_loss": {
+          "min": -0.4943939447402954,
+          "max": 1.7540276050567627,
+          "mean": -0.0011037943109986372
+        },
+        "worker_loss": {
+          "min": -0.5524119734764099,
+          "max": 1.428708791732788,
+          "mean": 0.007987306366325357
+        },
+        "value_loss": {
+          "min": 1.2960032108821906e-05,
+          "max": 0.5789552330970764,
+          "mean": 0.017152447818440122
+        },
+        "manager_loss": {
+          "min": 3.5172365642210934e-06,
+          "max": 0.5803478956222534,
+          "mean": 0.016727303909601688
+        },
+        "entropy_mean": {
+          "min": 1.7607784271240234,
+          "max": 1.9423414468765259,
+          "mean": 1.9340055660009383
+        },
+        "grad_norm": {
+          "min": 0.0009266118868254125,
+          "max": 1.3118901252746582,
+          "mean": 0.09020512095018057
+        },
+        "action_coverage": {
+          "min": 0.8571428571428571,
+          "max": 1.0,
+          "mean": 0.9997142857142858
+        },
+        "final_goal_norm": {
+          "min": 0.3493708074092865,
+          "max": 2.6273257732391357,
+          "mean": 0.5194738321304321
+        },
+        "values_mean": {
+          "min": -0.01890154555439949,
+          "max": 0.3188280165195465,
+          "mean": 0.04288558176736024
+        },
+        "value_min": {
+          "min": -0.040276795625686646,
+          "max": 0.1244635283946991,
+          "mean": 0.021209147688001393
+        },
+        "value_max": {
+          "min": -0.01139754056930542,
+          "max": 0.8545786142349243,
+          "mean": 0.09517705758288503
+        },
+        "advantages_mean": {
+          "min": -0.3188280165195465,
+          "max": 0.7592028379440308,
+          "mean": 0.004365537890990708
+        },
+        "advantages_abs_mean": {
+          "min": 0.0031137496698647738,
+          "max": 0.7592028379440308,
+          "mean": 0.06835311366920359
+        },
+        "log_prob_mean": {
+          "min": -1.9729328155517578,
+          "max": -1.7178829908370972,
+          "mean": -1.9337383466959
+        },
+        "log_prob_min": {
+          "min": -4.036666393280029,
+          "max": -2.05072021484375,
+          "mean": -2.159352290391922
+        },
+        "log_prob_max": {
+          "min": -1.7882394790649414,
+          "max": -0.2636425495147705,
+          "mean": -1.5713021911382674
+        },
+        "action_analysis": {
+          "action_coverage": {
+            "min": 0.8571428571428571,
+            "max": 1.0,
+            "mean": 0.9997142857142858
+          },
+          "histogram_rows_parsed": 1000,
+          "total_action_counts": [
+            30903,
+            31131,
+            43049,
+            32226,
+            31909,
+            34228,
+            29698
+          ],
+          "action_distribution": [
+            0.13254898260302644,
+            0.13352691898569125,
+            0.18464554095323063,
+            0.13822358713927874,
+            0.1368639124318018,
+            0.14681055485022132,
+            0.12738050303674983
+          ],
+          "dominant_action": 2,
+          "dominant_action_fraction": 0.18464554095323063,
+          "mean_episode_dominant_fraction": 0.19528994637993285,
+          "collapsed": false
+        }
+      },
+      "eval": {
+        "action_mode": "sample",
+        "rows": 20,
+        "best_success_rate": 0.4,
+        "final_success_rate": 0.35,
+        "best_mean_return": 0.16438000000000003,
+        "final_mean_return": 0.12967999999999996,
+        "final_mean_episode_length": 223.7,
+        "ever_success_gt_zero": true
+      },
+      "summary": {
+        "best_success_rate": 0.4,
+        "final_eval": {
+          "episode": 1000,
+          "eval_success_rate": 0.5,
+          "eval_mean_return": 0.26599999999999996,
+          "eval_std_return": 0.3023950264141261,
+          "eval_mean_episode_length": 190.0,
+          "eval_std_episode_length": 72.08467243457515,
+          "eval_episode_seeds": "2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020"
+        },
+        "best_checkpoint_path": "checkpoints\\baseline_fun\\seed_1\\best.pt",
+        "last_checkpoint_path": "checkpoints\\baseline_fun\\seed_1\\last.pt",
+        "final_episode_checkpoint_path": "checkpoints\\baseline_fun\\seed_1\\episode_1000.pt",
+        "final_reward_moving_avg": 0.26794,
+        "final_success_moving_avg": 0.55,
+        "best_success": 1.0
+      },
+      "sample_evaluation": {
+        "path": "logs\\baseline_fun\\seed_1\\checkpoint_eval_best_sample.json",
+        "success_rate": 0.32,
+        "mean_return": 0.127364,
+        "mean_episode_length": 223.51,
+        "episodes": 100,
+        "checkpoint_episode": 950
+      },
+      "argmax_checkpoint_evaluation": {
+        "path": "logs\\baseline_fun\\seed_1\\checkpoint_eval_best_argmax.json",
+        "success_rate": 0.0,
+        "mean_return": 0.0,
+        "mean_episode_length": 250.0,
+        "episodes": 100,
+        "checkpoint_episode": 950
+      }
+    },
+    {
+      "seed": 11,
+      "paths": {
+        "train_csv": "logs\\baseline_fun\\seed_11\\train.csv",
+        "eval_csv": "logs\\baseline_fun\\seed_11\\eval.csv",
+        "summary_json": "logs\\baseline_fun\\seed_11\\summary.json"
+      },
+      "train": {
+        "rows": 1000,
+        "success_column": true,
+        "success_total": 205,
+        "success_rate": 0.205,
+        "reward_column": "total_reward",
+        "total_reward": {
+          "min": 0.0,
+          "max": 0.9532,
+          "mean": 0.09205
+        },
+        "episode_length": {
+          "min": 13.0,
+          "max": 250.0,
+          "mean": 230.125
+        },
+        "final_50_success_rate": 0.36,
+        "final_50_mean_reward": 0.164592,
+        "has_reward_signal_true": 205,
+        "has_return_signal_true": 205,
+        "nonzero_reward_fraction_mean": 0.0017330196292649105,
+        "nonzero_return_fraction_mean": 0.205,
+        "total_loss": {
+          "min": -0.5046281814575195,
+          "max": 1.7808218002319336,
+          "mean": -0.0008117419604386669
+        },
+        "worker_loss": {
+          "min": -0.5608953237533569,
+          "max": 1.428015947341919,
+          "mean": 0.00826837335311575
+        },
+        "value_loss": {
+          "min": 6.129162102297414e-06,
+          "max": 0.6067512631416321,
+          "mean": 0.01717729532817157
+        },
+        "manager_loss": {
+          "min": 1.9830395103781484e-05,
+          "max": 0.684755265712738,
+          "mean": 0.016722354893727243
+        },
+        "entropy_mean": {
+          "min": 1.790526270866394,
+          "max": 1.9438532590866089,
+          "mean": 1.934099949002266
+        },
+        "grad_norm": {
+          "min": 0.001196291414089501,
+          "max": 1.306636095046997,
+          "mean": 0.11134192839544267
+        },
+        "action_coverage": {
+          "min": 0.8571428571428571,
+          "max": 1.0,
+          "mean": 0.9997142857142858
+        },
+        "final_goal_norm": {
+          "min": 0.283084899187088,
+          "max": 3.4570703506469727,
+          "mean": 0.9646089504957199
+        },
+        "values_mean": {
+          "min": -0.09005909413099289,
+          "max": 0.32362645864486694,
+          "mean": 0.04999563827642487
+        },
+        "value_min": {
+          "min": -0.10950712859630585,
+          "max": 0.13415072858333588,
+          "mean": 0.023007401991635562
+        },
+        "value_max": {
+          "min": -0.06199505552649498,
+          "max": 0.7611758708953857,
+          "mean": 0.12745536888204514
+        },
+        "advantages_mean": {
+          "min": -0.32362645864486694,
+          "max": 0.7772607803344727,
+          "mean": 0.004482039631311636
+        },
+        "advantages_abs_mean": {
+          "min": 0.0018877468537539244,
+          "max": 0.7772607803344727,
+          "mean": 0.07315294012986123
+        },
+        "log_prob_mean": {
+          "min": -1.963596224784851,
+          "max": -1.7837157249450684,
+          "mean": -1.933624657034874
+        },
+        "log_prob_min": {
+          "min": -3.4740958213806152,
+          "max": -2.0583410263061523,
+          "mean": -2.239910929441452
+        },
+        "log_prob_max": {
+          "min": -1.8510831594467163,
+          "max": -0.4512457847595215,
+          "mean": -1.5388544363975525
+        },
+        "action_analysis": {
+          "action_coverage": {
+            "min": 0.8571428571428571,
+            "max": 1.0,
+            "mean": 0.9997142857142858
+          },
+          "histogram_rows_parsed": 1000,
+          "total_action_counts": [
+            29063,
+            33957,
+            40238,
+            34764,
+            31955,
+            30081,
+            30067
+          ],
+          "action_distribution": [
+            0.12629223248234656,
+            0.14755893536121673,
+            0.17485279739272136,
+            0.15106572514937533,
+            0.1388593155893536,
+            0.13071591526344378,
+            0.13065507876154264
+          ],
+          "dominant_action": 2,
+          "dominant_action_fraction": 0.17485279739272136,
+          "mean_episode_dominant_fraction": 0.19116266727226008,
+          "collapsed": false
+        }
+      },
+      "eval": {
+        "action_mode": "sample",
+        "rows": 20,
+        "best_success_rate": 0.5,
+        "final_success_rate": 0.45,
+        "best_mean_return": 0.25650000000000006,
+        "final_mean_return": 0.25650000000000006,
+        "final_mean_episode_length": 191.25,
+        "ever_success_gt_zero": true
+      },
+      "summary": {
+        "best_success_rate": 0.5,
+        "final_eval": {
+          "episode": 1000,
+          "eval_success_rate": 0.35,
+          "eval_mean_return": 0.14948,
+          "eval_std_return": 0.22882902263480479,
+          "eval_mean_episode_length": 218.2,
+          "eval_std_episode_length": 52.119669991280645,
+          "eval_episode_seeds": "2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026,2027,2028,2029,2030"
+        },
+        "best_checkpoint_path": "checkpoints\\baseline_fun\\seed_11\\best.pt",
+        "last_checkpoint_path": "checkpoints\\baseline_fun\\seed_11\\last.pt",
+        "final_episode_checkpoint_path": "checkpoints\\baseline_fun\\seed_11\\episode_1000.pt",
+        "final_reward_moving_avg": 0.18381999999999996,
+        "final_success_moving_avg": 0.4,
+        "best_success": 1.0
+      },
+      "sample_evaluation": {
+        "path": "logs\\baseline_fun\\seed_11\\checkpoint_eval_best_sample.json",
+        "success_rate": 0.48,
+        "mean_return": 0.24394800000000003,
+        "mean_episode_length": 195.57,
+        "episodes": 100,
+        "checkpoint_episode": 800
+      },
+      "argmax_checkpoint_evaluation": {
+        "path": "logs\\baseline_fun\\seed_11\\checkpoint_eval_best_argmax.json",
+        "success_rate": 0.0,
+        "mean_return": 0.0,
+        "mean_episode_length": 250.0,
+        "episodes": 100,
+        "checkpoint_episode": 800
+      }
+    },
+    {
+      "seed": 44,
+      "paths": {
+        "train_csv": "logs\\baseline_fun\\seed_44\\train.csv",
+        "eval_csv": "logs\\baseline_fun\\seed_44\\eval.csv",
+        "summary_json": "logs\\baseline_fun\\seed_44\\summary.json"
+      },
+      "train": {
+        "rows": 1000,
+        "success_column": true,
+        "success_total": 181,
+        "success_rate": 0.181,
+        "reward_column": "total_reward",
+        "total_reward": {
+          "min": 0.0,
+          "max": 0.9532,
+          "mean": 0.08810200000000001
+        },
+        "episode_length": {
+          "min": 13.0,
+          "max": 250.0,
+          "mean": 230.555
+        },
+        "final_50_success_rate": 0.38,
+        "final_50_mean_reward": 0.200216,
+        "has_reward_signal_true": 181,
+        "has_return_signal_true": 181,
+        "nonzero_reward_fraction_mean": 0.0017240132073167594,
+        "nonzero_return_fraction_mean": 0.181,
+        "total_loss": {
+          "min": -0.378281831741333,
+          "max": 1.952648401260376,
+          "mean": -0.0006325348738464527
+        },
+        "worker_loss": {
+          "min": -0.3855663537979126,
+          "max": 1.5448768138885498,
+          "mean": 0.0077028271461986155
+        },
+        "value_loss": {
+          "min": 2.6684811018640175e-06,
+          "max": 0.7058087587356567,
+          "mean": 0.018253513849679166
+        },
+        "manager_loss": {
+          "min": 4.638748578145169e-06,
+          "max": 0.7403895258903503,
+          "mean": 0.01837125875176571
+        },
+        "entropy_mean": {
+          "min": 1.4823472499847412,
+          "max": 1.9454762935638428,
+          "mean": 1.9299245117902755
+        },
+        "grad_norm": {
+          "min": 0.0006446428596973419,
+          "max": 1.2907776832580566,
+          "mean": 0.11285838724044152
+        },
+        "action_coverage": {
+          "min": 0.7142857142857143,
+          "max": 1.0,
+          "mean": 0.9995714285714286
+        },
+        "final_goal_norm": {
+          "min": 0.344053715467453,
+          "max": 2.1187827587127686,
+          "mean": 0.6361690672636032
+        },
+        "values_mean": {
+          "min": -0.017988452687859535,
+          "max": 0.34808555245399475,
+          "mean": 0.050240193492848445
+        },
+        "value_min": {
+          "min": -0.048825476318597794,
+          "max": 0.15568701922893524,
+          "mean": 0.028215107269817963
+        },
+        "value_max": {
+          "min": -0.013564908877015114,
+          "max": 0.8135446310043335,
+          "mean": 0.11935405908129178
+        },
+        "advantages_mean": {
+          "min": -0.26260289549827576,
+          "max": 0.8395430445671082,
+          "mean": 0.0041499360361494835
+        },
+        "advantages_abs_mean": {
+          "min": 0.001135717029683292,
+          "max": 0.8395430445671082,
+          "mean": 0.07258040746801998
+        },
+        "log_prob_mean": {
+          "min": -1.959555745124817,
+          "max": -1.4165798425674438,
+          "mean": -1.9290781248807907
+        },
+        "log_prob_min": {
+          "min": -4.630370140075684,
+          "max": -1.9946181774139404,
+          "mean": -2.2012938618659974
+        },
+        "log_prob_max": {
+          "min": -1.905395746231079,
+          "max": -0.05336761474609375,
+          "mean": -1.503824947476387
+        },
+        "action_analysis": {
+          "action_coverage": {
+            "min": 0.7142857142857143,
+            "max": 1.0,
+            "mean": 0.9995714285714286
+          },
+          "histogram_rows_parsed": 1000,
+          "total_action_counts": [
+            32966,
+            32259,
+            37859,
+            33440,
+            30299,
+            33231,
+            30501
+          ],
+          "action_distribution": [
+            0.1429854047841079,
+            0.13991889137082258,
+            0.1642081065255579,
+            0.1450413133525623,
+            0.13141766606666522,
+            0.14413480514410879,
+            0.13229381275617533
+          ],
+          "dominant_action": 2,
+          "dominant_action_fraction": 0.1642081065255579,
+          "mean_episode_dominant_fraction": 0.19351617190287596,
+          "collapsed": false
+        }
+      },
+      "eval": {
+        "action_mode": "sample",
+        "rows": 20,
+        "best_success_rate": 0.65,
+        "final_success_rate": 0.5,
+        "best_mean_return": 0.30218,
+        "final_mean_return": 0.30218,
+        "final_mean_episode_length": 179.95,
+        "ever_success_gt_zero": true
+      },
+      "summary": {
+        "best_success_rate": 0.65,
+        "final_eval": {
+          "episode": 1000,
+          "eval_success_rate": 0.6,
+          "eval_mean_return": 0.25961999999999996,
+          "eval_std_return": 0.27484661831647117,
+          "eval_mean_episode_length": 194.55,
+          "eval_std_episode_length": 66.41797572946649,
+          "eval_episode_seeds": "2044,2045,2046,2047,2048,2049,2050,2051,2052,2053,2054,2055,2056,2057,2058,2059,2060,2061,2062,2063"
+        },
+        "best_checkpoint_path": "checkpoints\\baseline_fun\\seed_44\\best.pt",
+        "last_checkpoint_path": "checkpoints\\baseline_fun\\seed_44\\last.pt",
+        "final_episode_checkpoint_path": "checkpoints\\baseline_fun\\seed_44\\episode_1000.pt",
+        "final_reward_moving_avg": 0.10078000000000001,
+        "final_success_moving_avg": 0.25,
+        "best_success": 1.0
+      },
+      "sample_evaluation": {
+        "path": "logs\\baseline_fun\\seed_44\\checkpoint_eval_best_sample.json",
+        "success_rate": 0.45,
+        "mean_return": 0.23778000000000002,
+        "mean_episode_length": 196.45,
+        "episodes": 100,
+        "checkpoint_episode": 950
+      },
+      "argmax_checkpoint_evaluation": {
+        "path": "logs\\baseline_fun\\seed_44\\checkpoint_eval_best_argmax.json",
+        "success_rate": 0.0,
+        "mean_return": 0.0,
+        "mean_episode_length": 250.0,
+        "episodes": 100,
+        "checkpoint_episode": 950
+      }
+    }
+  ],
+  "reference_policies": {
+    "random_policy": {
+      "success_rate": 0.07,
+      "mean_return": 0.032308,
+      "mean_episode_length": 242.97,
+      "min_return": 0.0,
+      "max_return": 0.7408,
+      "episodes": 100
+    },
+    "untrained_fun_sample": {
+      "success_rate": 0.14,
+      "mean_return": 0.052736,
+      "mean_episode_length": 239.24,
+      "min_return": 0.0,
+      "max_return": 0.7156,
+      "episodes": 100
+    },
+    "untrained_fun_argmax": {
+      "success_rate": 0.0,
+      "mean_return": 0.0,
+      "mean_episode_length": 250.0,
+      "min_return": 0.0,
+      "max_return": 0.0,
+      "episodes": 100
+    }
+  },
+  "empty5x5_sanity": {
+    "summary_best_success_rate": 0.0,
+    "summary_final_eval": {
+      "episode": 300,
+      "eval_success_rate": 0.0,
+      "eval_mean_return": 0.0,
+      "eval_std_return": 0.0,
+      "eval_mean_episode_length": 100.0,
+      "eval_std_episode_length": 0.0,
+      "eval_episode_seeds": "2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020"
+    },
+    "argmax_best_checkpoint": {
+      "success_rate": 0.0,
+      "mean_return": 0.0,
+      "mean_episode_length": 100.0,
+      "min_return": 0.0,
+      "max_return": 0.0,
+      "episodes": 100
+    },
+    "sample_best_checkpoint": {
+      "success_rate": 0.73,
+      "mean_return": 0.46251999999999993,
+      "mean_episode_length": 56.72,
+      "min_return": 0.0,
+      "max_return": 0.946,
+      "episodes": 100
+    }
+  },
+  "warnings": [],
+  "conclusion": "2. evaluation argmax 방식 문제가 큼",
+  "conclusion_reasons": [
+    "train에서는 성공/reward가 있었고 sample checkpoint eval도 성공하지만 argmax eval은 0입니다.",
+    "trained sample 평균 success=0.417, untrained sample success=0.140."
+  ]
+}

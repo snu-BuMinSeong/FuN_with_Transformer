@@ -120,6 +120,7 @@ def main() -> None:
         hidden_dim=int(cfg.get("hidden_dim", 64)),
         goal_size=int(cfg.get("goal_size", cfg.get("goal_dim", 16))),
         num_actions=int(cfg.get("num_actions", 7)),
+        manager_type=str(cfg.get("manager_type", "recurrent")),
     ).to(device)
     policy = FuNPolicy(
         model=model,

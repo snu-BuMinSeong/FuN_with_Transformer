@@ -1,12 +1,12 @@
-# Week-3 vanilla FuN baseline config.
+# Week-4 FuN Manager memory ablation config.
 env_id: MiniGrid-DoorKey-5x5-v0
 render_mode: null
-seed: 11
+seed: 1
 
-total_episodes: 1000
+total_episodes: 10
 max_steps: 250
-eval_interval: 50
-eval_episodes: 20
+eval_interval: 5
+eval_episodes: 3
 
 gamma: 0.99
 learning_rate: 0.0003
@@ -16,6 +16,7 @@ hidden_dim: 64
 goal_size: 16
 goal_dim: 16
 num_actions: 7
+manager_type: ablation
 
 entropy_coef: 0.01
 value_loss_coef: 0.5
@@ -28,5 +29,5 @@ moving_avg_window: 20
 log_interval: 50
 eval_seed_offset: 1000
 
-log_dir: logs/baseline_fun/seed_11
-checkpoint_dir: checkpoints/baseline_fun/seed_11
+log_dir: logs/ablation_fun/smoke
+checkpoint_dir: checkpoints/ablation_fun/smoke

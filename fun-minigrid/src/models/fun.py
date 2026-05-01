@@ -7,7 +7,7 @@ from torch import nn
 from torch.distributions import Categorical
 
 from src.models.encoder import ObservationEncoder
-from src.models.manager import Manager
+from src.models.manager import AblationManager, Manager
 from src.models.worker import Worker
 
 
@@ -20,6 +20,7 @@ class FuNModel(nn.Module):
         hidden_dim: int = 64,
         goal_size: int = 16,
         num_actions: int = 7,
+        manager_type: str = "recurrent",
     ) -> None:
         """Initialize encoder, manager, worker, and goal update interval."""
         super().__init__()
@@ -31,13 +32,20 @@ class FuNModel(nn.Module):
             raise ValueError(f"goal_size must be positive, got {goal_size}.")
         if num_actions <= 0:
             raise ValueError(f"num_actions must be positive, got {num_actions}.")
+        if manager_type not in {"recurrent", "ablation", "feedforward"}:
+            raise ValueError(
+                "manager_type must be one of 'recurrent', 'ablation', or 'feedforward', "
+                f"got {manager_type}."
+            )
 
         self.goal_update_interval = goal_update_interval
         self.hidden_dim = hidden_dim
         self.goal_size = goal_size
         self.num_actions = num_actions
+        self.manager_type = manager_type
         self.encoder = ObservationEncoder(embedding_dim=self.hidden_dim)
-        self.manager = Manager(
+        manager_cls = Manager if self.manager_type == "recurrent" else AblationManager
+        self.manager = manager_cls(
             input_size=self.hidden_dim,
             hidden_size=self.hidden_dim,
             goal_size=self.goal_size,

@@ -14,10 +14,10 @@ from src.models.fun import FuNModel
 from src.policies.fun_policy import FuNPolicy
 
 
-def make_policy(action_mode: str = "argmax") -> FuNPolicy:
+def make_policy(action_mode: str = "argmax", manager_type: str = "recurrent") -> FuNPolicy:
     """Create a deterministic FuNPolicy for lightweight behavior checks."""
     torch.manual_seed(0)
-    model = FuNModel(goal_update_interval=10)
+    model = FuNModel(goal_update_interval=10, manager_type=manager_type)
     return FuNPolicy(model=model, preprocess_fn=preprocess_obs, action_mode=action_mode)
 
 
@@ -149,11 +149,36 @@ def test_policy_act_for_training_returns_rollout_fields() -> None:
     env.close()
 
 
+def test_ablation_policy_act_for_training_returns_rollout_fields() -> None:
+    env = make_env(seed=42)
+    obs, _ = env.reset(seed=42)
+    policy = make_policy(action_mode="sample", manager_type="ablation")
+
+    out = policy.act_for_training(obs)
+
+    print("\n[Ablation Policy Training Act]")
+    print("action:", out["action"])
+    print("goal shape:", out["goal"].shape)
+    print("hidden shape:", policy.hidden_state.shape)
+    print("goal_updated:", out["goal_updated"])
+
+    assert 0 <= out["action"] <= 6
+    assert out["log_prob"].ndim == 0
+    assert out["entropy"].ndim == 0
+    assert out["goal"].shape == (16,)
+    assert policy.hidden_state.shape == (1, 64)
+    assert out["goal_updated"] is True
+    assert policy.step_count == 1
+
+    env.close()
+
+
 if __name__ == "__main__":
     test_policy_reset_state()
     test_policy_act_updates_step_and_returns_valid_action()
     test_model_outputs_support_distribution_and_log_prob()
     test_policy_goal_updates_every_10_steps()
     test_policy_act_for_training_returns_rollout_fields()
+    test_ablation_policy_act_for_training_returns_rollout_fields()
 
     print("\nAll FuNPolicy tests passed.")

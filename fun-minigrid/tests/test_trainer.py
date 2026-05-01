@@ -14,9 +14,9 @@ from src.policies.fun_policy import FuNPolicy
 from src.training.trainer import train, train_one_episode
 
 
-def make_policy(seed: int = 0, action_mode: str = "sample") -> FuNPolicy:
+def make_policy(seed: int = 0, action_mode: str = "sample", manager_type: str = "recurrent") -> FuNPolicy:
     torch.manual_seed(seed)
-    model = FuNModel(goal_update_interval=10)
+    model = FuNModel(goal_update_interval=10, manager_type=manager_type)
     return FuNPolicy(model=model, preprocess_fn=preprocess_obs, action_mode=action_mode)
 
 
@@ -115,8 +115,40 @@ def test_train_can_skip_trajectory_storage() -> None:
     env.close()
 
 
+def test_ablation_train_one_episode_runs_optimizer_step() -> None:
+    env = make_env(seed=42)
+    policy = make_policy(seed=789, action_mode="sample", manager_type="ablation")
+    optimizer = torch.optim.Adam(policy.model.parameters(), lr=1e-3)
+
+    result = train_one_episode(
+        env=env,
+        policy=policy,
+        optimizer=optimizer,
+        gamma=1.0,
+        max_steps=5,
+        seed=42,
+        entropy_coef=0.01,
+        manager_loss_coef=0.1,
+        grad_clip_norm=1.0,
+    )
+
+    print("\n[Ablation Train One Episode]")
+    print("episode_length:", result["episode_length"])
+    print("total_loss:", result["total_loss"])
+    print("manager_grad_norm:", result["manager_grad_norm"])
+
+    assert result["episode_length"] == 5
+    assert result["num_steps"] == 5
+    assert isinstance(result["total_loss"], float)
+    assert isinstance(result["manager_grad_norm"], float)
+    assert result["manager_grad_norm"] >= 0.0
+
+    env.close()
+
+
 if __name__ == "__main__":
     test_train_one_episode_runs_optimizer_step()
     test_train_multiple_episodes_returns_summaries()
     test_train_can_skip_trajectory_storage()
+    test_ablation_train_one_episode_runs_optimizer_step()
     print("\nAll trainer tests passed.")

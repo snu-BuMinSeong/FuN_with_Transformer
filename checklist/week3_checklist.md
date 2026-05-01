@@ -39,13 +39,13 @@
 - [x] GCP VM SSH 접속 설정 완료
 - [x] SSH config 권한 및 사용자명 문제 수정
 - [x] VS Code에서 GCP VM 원격 폴더 접속 가능 상태 확인
-- [ ] GCP VM에서 저장소 코드 준비
-- [ ] GCP VM Python 가상환경 구성
-- [ ] GCP VM에서 `requirements.txt` 또는 필요한 패키지 설치
-- [ ] GCP VM에서 `nvidia-smi` 또는 CPU/GPU 실행 환경 확인
-- [ ] GCP VM에서 짧은 smoke test 학습 실행
-- [ ] GCP VM에서 seed별 baseline 장기 학습 실행
-- [ ] GCP VM 학습 로그와 checkpoint 저장 경로 정리
+- [x] GCP VM에서 저장소 코드 준비
+- [x] GCP VM Python 가상환경 구성
+- [x] GCP VM에서 필요한 패키지 import 가능 확인
+- [x] GCP VM에서 `nvidia-smi` 및 CUDA/GPU 실행 환경 확인
+- [x] GCP VM에서 짧은 smoke test 및 문법/체크포인트 테스트 실행
+- [x] GCP VM에서 seed별 baseline 장기 학습 실행
+- [x] GCP VM 학습 로그와 checkpoint 저장 경로 정리
 
 ### 현재 접속 정보
 
@@ -89,21 +89,21 @@ remote workspace: /home/fumin0193
 
 ## 2. DoorKey 환경 난이도 및 reward signal 점검
 
-- [ ] random policy 성능 측정
-- [ ] 학습 전 untrained FuNPolicy 성능 측정
-- [ ] 짧게 학습한 FuNPolicy 성능 측정
-- [ ] episode length가 항상 max step에 걸리는지 확인
-- [ ] reward가 대부분 0인지 확인
-- [ ] success가 한 번이라도 발생하는지 확인
-- [ ] `nonzero_reward_fraction` 확인
-- [ ] `nonzero_return_fraction` 확인
-- [ ] `has_reward_signal`이 true가 되는 episode 수 확인
-- [ ] `has_return_signal`이 true가 되는 episode 수 확인
+- [x] random policy 성능 측정
+- [x] 학습 전 untrained FuNPolicy 성능 측정
+- [x] 짧게 학습한 FuNPolicy 성능 측정
+- [x] episode length가 항상 max step에 걸리는지 확인
+- [x] reward가 대부분 0인지 확인
+- [x] success가 한 번이라도 발생하는지 확인
+- [x] `nonzero_reward_fraction` 확인
+- [x] `nonzero_return_fraction` 확인
+- [x] `has_reward_signal`이 true가 되는 episode 수 확인
+- [x] `has_return_signal`이 true가 되는 episode 수 확인
 
 ### 완료 기준
 
-- [ ] 현재 환경에서 학습 신호가 실제로 얼마나 희소한지 수치로 정리됨
-- [ ] DoorKey-5x5를 그대로 사용할지, 쉬운 sanity-check 환경을 병행할지 판단 가능함
+- [x] 현재 환경에서 학습 신호가 실제로 얼마나 희소한지 수치로 정리됨
+- [x] DoorKey-5x5를 그대로 사용할지, 쉬운 sanity-check 환경을 병행할지 판단 가능함
 
 ---
 
@@ -181,14 +181,16 @@ checkpoint_dir: checkpoints/baseline_fun
 
 ### entropy coefficient 확인
 
-- [ ] `entropy_coef = 0.01` 기본값 확인
+- [x] `entropy_coef = 0.01` 기본값 확인
 - [ ] action coverage가 너무 낮으면 entropy coefficient 증가 검토
 - [ ] entropy가 너무 높아 학습이 불안정하면 entropy coefficient 감소 검토
 
 ### 완료 기준
 
-- [ ] baseline 실험에 사용할 기본 hyperparameter 조합 1개 확정
-- [ ] 확정 이유를 짧게 기록
+- [x] baseline 실험에 사용할 기본 hyperparameter 조합 1개 확정
+- [x] 확정 이유를 짧게 기록
+
+확정 조합은 `configs/train_fun_baseline_seed1.yaml`, `configs/train_fun_baseline_seed11.yaml`, `configs/train_fun_baseline_seed44.yaml`에 기록된 `learning_rate=0.0003`, `goal_update_interval=10`, `entropy_coef=0.01` 기준이다. 별도 grid search는 하지 않았고, 3주차 목표가 성능 최적화가 아니라 4주차 비교용 baseline 고정이었기 때문에 안정적으로 실행되고 seed별 결과를 확보한 조합을 baseline으로 사용한다.
 
 ---
 
@@ -207,7 +209,7 @@ checkpoint_dir: checkpoints/baseline_fun
 - [x] checkpoint에 episode 저장
 - [x] checkpoint에 config 저장
 - [x] checkpoint에 best metric 저장
-- [ ] 저장된 checkpoint로 evaluation 실행 가능하게 연결
+- [x] 저장된 checkpoint로 evaluation 실행 가능하게 연결
 
 ### 권장 저장 구조
 
@@ -234,16 +236,17 @@ checkpoints/
 ### 완료 기준
 
 - [x] 학습 중 checkpoint가 생성됨
-- [ ] `last.pt`를 불러와 evaluation 가능
-- [ ] `best.pt`를 불러와 evaluation 가능
+- [x] `last.pt`를 불러와 evaluation 가능
+- [x] `best.pt`를 불러와 evaluation 가능
 
 ---
 
 ## 6. evaluation loop 정리
 
 - [x] 학습 중 evaluation을 일정 interval마다 실행
-- [x] evaluation에서는 deterministic action 사용 여부 결정
+- [x] evaluation에서는 deterministic/sample action 사용 여부 결정
 - [x] `action_mode="argmax"` 평가 가능하게 확인
+- [x] `action_mode="sample"` 평가 가능하게 확인
 - [x] evaluation seed 고정
 - [x] evaluation episode 수 고정
 - [x] train log와 eval log를 분리 저장
@@ -277,15 +280,15 @@ checkpoints/
 - [x] seed 1, 11, 44 실행 스크립트 생성
 - [x] GCP/tmux 실행 명령 문서화
 - [x] seed 1로 baseline 학습 실행
-- [ ] seed 11로 baseline 학습 실행
-- [ ] seed 44로 baseline 학습 실행
-- [ ] 각 seed별 train log 저장
-- [ ] 각 seed별 eval log 저장
-- [ ] 각 seed별 checkpoint 저장
-- [ ] seed별 summary JSON 저장
-- [ ] seed별 최종 success rate 정리
-- [ ] seed별 최종 average return 정리
-- [ ] seed별 최종 episode length 정리
+- [x] seed 11로 baseline 학습 실행
+- [x] seed 44로 baseline 학습 실행
+- [x] 각 seed별 train log 저장
+- [x] 각 seed별 eval log 저장
+- [x] 각 seed별 checkpoint 저장
+- [x] seed별 summary JSON 저장
+- [x] seed별 최종 success rate 정리
+- [x] seed별 최종 average return 정리
+- [x] seed별 최종 episode length 정리
 
 ### 권장 로그 구조
 
@@ -308,9 +311,9 @@ logs/
 
 ### 완료 기준
 
-- [ ] 최소 2개 seed 결과 확보
-- [ ] 가능하면 3개 seed 결과 확보
-- [ ] seed별 결과 편차를 확인할 수 있음
+- [x] 최소 2개 seed 결과 확보
+- [x] 가능하면 3개 seed 결과 확보
+- [x] seed별 결과 편차를 확인할 수 있음
 
 ---
 
@@ -319,9 +322,9 @@ logs/
 ### 필수 그래프
 
 - [ ] training return curve
-- [ ] evaluation success rate curve
-- [ ] evaluation mean return curve
-- [ ] evaluation mean episode length curve
+- [x] evaluation success rate curve
+- [x] evaluation mean return curve
+- [x] evaluation mean episode length curve
 - [ ] total loss curve
 - [ ] worker loss curve
 - [ ] value loss curve
@@ -339,30 +342,30 @@ logs/
 
 ### 보고서용 우선 그래프
 
-- [ ] success rate
-- [ ] average return
-- [ ] average episode length
+- [x] success rate
+- [x] average return
+- [x] average episode length
 
 ### 완료 기준
 
-- [ ] 그래프 파일이 저장됨
-- [ ] 보고서에 바로 넣을 수 있는 baseline 그래프가 최소 3개 있음
+- [x] 그래프 파일이 저장됨
+- [x] 보고서에 바로 넣을 수 있는 baseline 그래프가 최소 3개 있음
 
 ---
 
 ## 9. baseline 결과 요약 문서 작성
 
-- [ ] `results/week3_baseline_summary.md` 작성
-- [ ] 실험 환경 정리
-- [ ] 모델 구조 요약
-- [ ] 사용 config 정리
-- [ ] seed별 결과 표 작성
-- [ ] 최종 평균 success rate 작성
-- [ ] 최종 평균 return 작성
-- [ ] 최종 평균 episode length 작성
-- [ ] 학습이 잘 된 부분과 안 된 부분 구분
-- [ ] sparse reward로 인한 한계 기록
-- [ ] 4주차 memory ablation에서 비교할 기준 metric 명시
+- [x] `results/week3_baseline_summary.md` 작성
+- [x] 실험 환경 정리
+- [x] 모델 구조 요약
+- [x] 사용 config 정리
+- [x] seed별 결과 표 작성
+- [x] 최종 평균 success rate 작성
+- [x] 최종 평균 return 작성
+- [x] 최종 평균 episode length 작성
+- [x] 학습이 잘 된 부분과 안 된 부분 구분
+- [x] sparse reward로 인한 한계 기록
+- [x] 4주차 memory ablation에서 비교할 기준 metric 명시
 
 ### 결과 표 예시
 
@@ -375,25 +378,27 @@ logs/
 
 ### 완료 기준
 
-- [ ] 4주차 시작 전에 baseline 결과를 한눈에 볼 수 있음
-- [ ] 보고서 결과 섹션 초안으로 재사용 가능함
+- [x] 4주차 시작 전에 baseline 결과를 한눈에 볼 수 있음
+- [x] 보고서 결과 섹션 초안으로 재사용 가능함
 
 ---
 
 ## 10. 4주차 memory ablation 준비
 
-- [ ] vanilla FuN에서 Manager RNN이 사용되는 부분 정확히 표시
-- [ ] memory 제거 시 수정해야 할 파일 목록 작성
+- [x] vanilla FuN에서 Manager RNN이 사용되는 부분 정확히 표시
+- [x] memory 제거 시 수정해야 할 파일 목록 작성
 - [ ] `AblationManager` 설계 메모 작성
-- [ ] 기존 training loop를 그대로 재사용할 수 있는지 확인
+- [x] 기존 training loop를 그대로 재사용할 수 있는지 확인
 - [ ] baseline config를 ablation config로 복사할 준비
-- [ ] 비교 metric 확정
+- [x] 비교 metric 확정
+
+코드 점검 결과, Manager 메모리는 `src/models/manager.py`의 `nn.GRUCell`과 `src/models/fun.py`의 `hidden_state`, `goal_update_interval` 갱신 로직에 집중되어 있다. Memory ablation에서 우선 확인하거나 수정할 파일은 `src/models/manager.py`, `src/models/fun.py`, `src/policies/fun_policy.py`, `configs/train_fun_baseline_seed*.yaml`, 관련 shape/model 테스트다. `src/training/trainer.py`, `rollout.py`, `losses.py`, `evaluation.py`는 policy/model 출력 schema가 유지되면 그대로 재사용 가능하다.
 
 ### 4주차에서 비교할 metric
 
-- success rate
-- average return
-- average episode length
+- sample success rate
+- sample mean return
+- sample mean episode length
 - 학습 안정성
 - seed별 편차
 
@@ -407,14 +412,14 @@ logs/
 
 3주차가 끝났을 때 아래가 만족되면 성공이다.
 
-- [ ] Vanilla FuN 학습이 재현 가능하게 실행된다.
-- [ ] baseline config가 고정되어 있다.
-- [ ] checkpoint 저장/로드가 가능하다.
-- [ ] 학습 로그와 평가 로그가 분리되어 저장된다.
-- [ ] 최소 2개 seed, 가능하면 3개 seed 결과가 있다.
-- [ ] success rate, average return, episode length 그래프가 있다.
-- [ ] sparse reward로 인한 한계가 정리되어 있다.
-- [ ] 4주차 memory ablation과 비교할 기준 결과가 확보되어 있다.
+- [x] Vanilla FuN 학습이 재현 가능하게 실행된다.
+- [x] baseline config가 고정되어 있다.
+- [x] checkpoint 저장/로드가 가능하다.
+- [x] 학습 로그와 평가 로그가 분리되어 저장된다.
+- [x] 최소 2개 seed, 가능하면 3개 seed 결과가 있다.
+- [x] success rate, average return, episode length 그래프가 있다.
+- [x] sparse reward로 인한 한계가 정리되어 있다.
+- [x] 4주차 memory ablation과 비교할 기준 결과가 확보되어 있다.
 
 ---
 
@@ -422,12 +427,12 @@ logs/
 
 ## 꼭 해야 하는 것
 
-- [ ] vanilla FuN 재실행 및 안정성 점검
-- [ ] config 정리
-- [ ] checkpoint 저장/로드
-- [ ] evaluation loop 분리
-- [ ] seed 반복 실험
-- [ ] success rate / return / episode length 그래프 생성
+- [x] vanilla FuN 재실행 및 안정성 점검
+- [x] config 정리
+- [x] checkpoint 저장/로드
+- [x] evaluation loop 분리
+- [x] seed 반복 실험
+- [x] success rate / return / episode length 그래프 생성
 
 ## 되면 좋은 것
 
@@ -540,6 +545,60 @@ logs/
 
 ## 다음 작업
 
-- [ ] Week 3 summary의 관찰 섹션에 sparse reward 한계와 실패 양상 해석 추가
+- [x] Week 3 summary의 관찰 섹션에 sparse reward 한계와 실패 양상 해석 추가
 - [ ] baseline 결과를 기준으로 Week 4 memory ablation 실험 config 준비
 - [ ] ablation 구현 전 vanilla FuN Manager/hidden state 사용 지점 재확인
+
+---
+
+# 2026-04-25 업데이트: Sample 기준 Baseline 재정리 완료
+
+## 평가 기준 수정
+
+- [x] 기존 argmax evaluation 기준만으로 baseline을 판단하면 학습 실패처럼 보이는 문제를 확인했다.
+- [x] train log와 sample checkpoint evaluation에서 성공/reward signal이 있음을 확인했다.
+- [x] baseline 공식 평가 기준을 `sample` evaluation으로 전환했다.
+- [x] `argmax` evaluation은 참고 지표로 유지했다.
+- [x] 4주차 memory ablation 비교 기준을 sample metric으로 확정했다.
+
+## 재학습 및 로그 정리
+
+- [x] seed 1의 mixed log 문제를 해결하기 위해 기존 seed 1 결과를 백업하고 재학습했다.
+- [x] seed 1 재학습 결과 `train.csv` rows와 `summary.json` final episode가 모두 1000으로 일치함을 확인했다.
+- [x] seed 11, seed 44도 기존 argmax 기준 결과를 백업하고 sample eval config 기준으로 재학습했다.
+- [x] seed 11, seed 44의 `train.csv` rows와 `summary.json` final episode가 모두 1000으로 일치함을 확인했다.
+
+## 최종 Sample 기준 결과
+
+| Seed | Sample Success Rate | Sample Mean Return | Sample Episode Length | Argmax Success Rate |
+|---:|---:|---:|---:|---:|
+| 1 | 0.320000 | 0.127364 | 223.510000 | 0.000000 |
+| 11 | 0.480000 | 0.243948 | 195.570000 | 0.000000 |
+| 44 | 0.450000 | 0.237780 | 196.450000 | 0.000000 |
+| Mean | 0.416667 | 0.203031 | 205.176667 | 0.000000 |
+
+## 생성/갱신된 산출물
+
+- [x] `fun-minigrid/results/week3_baseline_results.csv`
+- [x] `fun-minigrid/results/week3_baseline_results.md`
+- [x] `fun-minigrid/results/week3_baseline_summary.md`
+- [x] `fun-minigrid/results/week3_baseline_diagnosis.md`
+- [x] `fun-minigrid/results/week3_sample_eval_commands.md`
+- [x] `fun-minigrid/figures/baseline_fun/sample_success_rate_by_seed.png`
+- [x] `fun-minigrid/figures/baseline_fun/sample_mean_return_by_seed.png`
+- [x] `fun-minigrid/figures/baseline_fun/sample_episode_length_by_seed.png`
+- [x] `fun-minigrid/figures/baseline_fun/argmax_vs_sample_success_rate.png`
+
+## 4주차 비교 기준
+
+primary:
+
+- sample success rate
+- sample mean return
+- sample mean episode length
+
+secondary:
+
+- argmax success rate
+- train stability
+- seed variance
