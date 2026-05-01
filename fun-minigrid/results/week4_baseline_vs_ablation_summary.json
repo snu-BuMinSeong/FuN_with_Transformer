@@ -1,0 +1,25 @@
+{
+  "baseline": {
+    "mean_sample_success_rate": 0.4166666666666667,
+    "mean_sample_return": 0.2030306666666667,
+    "mean_sample_episode_length": 205.17666666666665,
+    "mean_argmax_success_rate": 0.0
+  },
+  "ablation": {
+    "mean_sample_success_rate": 0.6033333333333334,
+    "mean_sample_return": 0.3398733333333333,
+    "mean_sample_episode_length": 172.35,
+    "mean_argmax_success_rate": 0.0
+  },
+  "difference_ablation_minus_baseline": {
+    "sample_success_rate": 0.1866666666666667,
+    "sample_return": 0.1368426666666666,
+    "sample_episode_length": -32.826666666666654,
+    "argmax_success_rate": 0.0
+  },
+  "seeds": [
+    1,
+    11,
+    44
+  ]
+}

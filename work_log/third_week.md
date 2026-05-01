@@ -714,3 +714,299 @@ secondary:
 - `AblationManager` 설계 메모를 작성한다.
 - memory-free Manager가 기존 `FuNModel` 출력 schema를 유지하도록 구현한다.
 - baseline과 같은 sample metric으로 seed별 ablation 결과를 집계한다.
+
+---
+
+# 2026-05-02 작업 로그: AblationManager 구현, GCP 학습 실행, 결과 회수
+
+## 작업 목적
+
+Vanilla FuN baseline에서 Manager의 recurrent memory만 제거한 `AblationManager`를 추가하고, 기존 training loop, rollout, loss, evaluation 코드는 그대로 재사용한 상태에서 baseline과 같은 조건으로 seed 1, 11, 44 ablation 실험을 수행했다.
+
+이번 작업에서는 TransformerManager, PPO, reward shaping, HER, hyperparameter search는 추가하지 않았다.
+
+## 구현 내용
+
+다음 파일을 수정하거나 추가했다.
+
+- `fun-minigrid/src/models/manager.py`
+- `fun-minigrid/src/models/fun.py`
+- `fun-minigrid/train.py`
+- `fun-minigrid/evaluate_checkpoint.py`
+- `fun-minigrid/tests/test_model_shapes.py`
+- `fun-minigrid/tests/test_fun_policy.py`
+- `fun-minigrid/tests/test_trainer.py`
+- `fun-minigrid/configs/train_fun_ablation_seed1.yaml`
+- `fun-minigrid/configs/train_fun_ablation_seed11.yaml`
+- `fun-minigrid/configs/train_fun_ablation_seed44.yaml`
+- `fun-minigrid/configs/train_fun_ablation_smoke.yaml`
+
+`AblationManager`는 recurrent memory를 제거한 feedforward Manager다.
+
+구조:
+
+```text
+state_emb
+ -> Linear(state_dim, hidden_dim)
+ -> ReLU
+ -> Linear(hidden_dim, goal_dim)
+ -> goal
+```
+
+동작:
+
+- `hidden_state`는 기존 `Manager`와의 호환성을 위해 인자로 받는다.
+- goal 계산에는 `hidden_state`를 사용하지 않는다.
+- `hidden_state`가 있으면 그대로 `next_hidden_state`로 반환한다.
+- `hidden_state`가 없으면 zero tensor를 만들어 반환한다.
+- `init_hidden(batch_size, device=None)`는 기존 policy/training code와 호환되도록 zero tensor를 반환한다.
+
+`FuNModel`에는 `manager_type` 옵션을 추가했다.
+
+- 기본값: `manager_type="recurrent"`
+- `manager_type="recurrent"`: 기존 `Manager` 사용
+- `manager_type="ablation"` 또는 `"feedforward"`: `AblationManager` 사용
+
+기존 baseline config에는 `manager_type`이 없어도 기존 recurrent Manager로 동작하도록 유지했다.
+
+## 유지한 부분
+
+다음 코드는 구조를 바꾸지 않았다.
+
+- `src/training/trainer.py`
+- `src/training/rollout.py`
+- `src/training/losses.py`
+- `src/training/evaluation.py`
+- `src/policies/fun_policy.py`의 출력 schema
+
+`FuNModel.forward()`의 반환 dict도 기존과 동일하게 유지했다.
+
+- `state_emb`
+- `goal`
+- `hidden_state`
+- `logits`
+- `action_dist`
+- `action_probs`
+- `value`
+- `manager_value`
+- `goal_updated`
+
+`goal_update_interval` 동작도 baseline과 동일하다.
+
+- update step에서만 manager 호출
+- update step이 아니면 이전 goal과 hidden_state 유지
+
+## 추가한 Config
+
+baseline seed config를 복사해 다음 ablation config를 추가했다.
+
+- `configs/train_fun_ablation_seed1.yaml`
+- `configs/train_fun_ablation_seed11.yaml`
+- `configs/train_fun_ablation_seed44.yaml`
+
+baseline과 동일하게 유지한 값:
+
+- `env_id: MiniGrid-DoorKey-5x5-v0`
+- `total_episodes: 1000`
+- `max_steps: 250`
+- `eval_interval: 50`
+- `eval_episodes: 20`
+- `gamma: 0.99`
+- `learning_rate: 0.0003`
+- `goal_update_interval: 10`
+- `hidden_dim: 64`
+- `goal_size: 16`
+- `goal_dim: 16`
+- `entropy_coef: 0.01`
+- `value_loss_coef: 0.5`
+- `manager_loss_coef: 0.1`
+- `grad_clip_norm: 1.0`
+- `action_mode: sample`
+- `eval_action_mode: sample`
+
+ablation에서 바꾼 값:
+
+- `manager_type: ablation`
+- `log_dir: logs/ablation_fun/seed_*`
+- `checkpoint_dir: checkpoints/ablation_fun/seed_*`
+
+짧은 검증용으로 `configs/train_fun_ablation_smoke.yaml`도 추가했다.
+
+## 로컬 테스트
+
+로컬에서 다음 테스트를 실행했고 모두 통과했다.
+
+```bash
+python -m pytest tests/test_model_shapes.py
+python -m pytest tests/test_fun_policy.py
+python -m pytest tests/test_trainer.py
+```
+
+결과:
+
+```text
+tests/test_model_shapes.py: 9 passed
+tests/test_fun_policy.py: 6 passed
+tests/test_trainer.py: 4 passed
+```
+
+추가로 `python train.py --config configs/train_fun_ablation_smoke.yaml`로 짧은 smoke test를 실행해 ablation 경로가 실제 학습 코드에서 동작함을 확인했다.
+
+## GCP VM 실행
+
+기존 GCP VM `instance-20260425-090526`은 `asia-northeast3-b`에서 `n1-standard-4 + Tesla T4` 리소스 부족으로 시작할 수 없었다.
+
+새 VM을 사용했다.
+
+```text
+name: fun-minigrid-2
+zone: asia-east1-c
+external IP: 35.194.128.10
+user: fumin0193
+remote path: /home/fumin0193/FuN_with_Transformer/fun-minigrid
+GPU: Tesla T4
+Python: 3.13.5
+torch: 2.6.0+cu124
+```
+
+SSH 접속 시 Windows 한글 사용자명 때문에 `gcloud compute config-ssh`가 깨진 key path를 생성해서 public key 인증이 실패했다. SSH config의 `fun-minigrid-2` Host 블록을 다음처럼 정리해 접속 문제를 해결했다.
+
+```text
+User fumin0193
+IdentityFile ~/.ssh/google_compute_engine
+UserKnownHostsFile ~/.ssh/google_compute_known_hosts
+```
+
+GCP에 최신 ablation 코드와 config를 업로드한 뒤 원격에서 다음 테스트를 다시 실행했다.
+
+```bash
+python -m pytest tests/test_model_shapes.py
+python -m pytest tests/test_fun_policy.py
+python -m pytest tests/test_trainer.py
+```
+
+원격 테스트 결과:
+
+```text
+tests/test_model_shapes.py: 9 passed
+tests/test_fun_policy.py: 6 passed
+tests/test_trainer.py: 4 passed
+```
+
+## GCP Ablation 학습
+
+GCP에서 seed 1, 11, 44 ablation 학습을 실행했다.
+
+```bash
+python train.py --config configs/train_fun_ablation_seed1.yaml
+python train.py --config configs/train_fun_ablation_seed11.yaml
+python train.py --config configs/train_fun_ablation_seed44.yaml
+```
+
+세 seed 모두 1000 episode까지 완료되었다.
+
+생성된 파일:
+
+- `logs/ablation_fun/seed_1/train.csv`
+- `logs/ablation_fun/seed_1/eval.csv`
+- `logs/ablation_fun/seed_1/summary.json`
+- `logs/ablation_fun/seed_11/train.csv`
+- `logs/ablation_fun/seed_11/eval.csv`
+- `logs/ablation_fun/seed_11/summary.json`
+- `logs/ablation_fun/seed_44/train.csv`
+- `logs/ablation_fun/seed_44/eval.csv`
+- `logs/ablation_fun/seed_44/summary.json`
+- `checkpoints/ablation_fun/seed_1/best.pt`
+- `checkpoints/ablation_fun/seed_1/last.pt`
+- `checkpoints/ablation_fun/seed_1/episode_1000.pt`
+- `checkpoints/ablation_fun/seed_11/best.pt`
+- `checkpoints/ablation_fun/seed_11/last.pt`
+- `checkpoints/ablation_fun/seed_11/episode_1000.pt`
+- `checkpoints/ablation_fun/seed_44/best.pt`
+- `checkpoints/ablation_fun/seed_44/last.pt`
+- `checkpoints/ablation_fun/seed_44/episode_1000.pt`
+
+## Best Checkpoint Evaluation
+
+각 seed의 `best.pt`를 100 episode로 sample/argmax 각각 평가했다.
+
+생성된 파일:
+
+- `logs/ablation_fun/seed_1/checkpoint_eval_best_sample.json`
+- `logs/ablation_fun/seed_1/checkpoint_eval_best_argmax.json`
+- `logs/ablation_fun/seed_11/checkpoint_eval_best_sample.json`
+- `logs/ablation_fun/seed_11/checkpoint_eval_best_argmax.json`
+- `logs/ablation_fun/seed_44/checkpoint_eval_best_sample.json`
+- `logs/ablation_fun/seed_44/checkpoint_eval_best_argmax.json`
+
+평가 결과:
+
+| Seed | Sample Success Rate | Sample Mean Return | Sample Episode Length | Argmax Success Rate | Argmax Mean Return | Argmax Episode Length |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 0.350000 | 0.160604 | 215.110000 | 0.000000 | 0.000000 | 250.000000 |
+| 11 | 0.820000 | 0.496936 | 134.740000 | 0.000000 | 0.000000 | 250.000000 |
+| 44 | 0.640000 | 0.362080 | 167.200000 | 0.000000 | 0.000000 | 250.000000 |
+| Mean | 0.603333 | 0.339873 | 172.350000 | 0.000000 | 0.000000 | 250.000000 |
+
+## Baseline과 Ablation 비교
+
+baseline 결과:
+
+| Model | Mean Sample Success Rate | Mean Sample Return | Mean Episode Length | Mean Argmax Success Rate |
+|---|---:|---:|---:|---:|
+| baseline | 0.416667 | 0.203031 | 205.176667 | 0.000000 |
+
+ablation 결과:
+
+| Model | Mean Sample Success Rate | Mean Sample Return | Mean Episode Length | Mean Argmax Success Rate |
+|---|---:|---:|---:|---:|
+| ablation | 0.603333 | 0.339873 | 172.350000 | 0.000000 |
+
+차이:
+
+| Metric | Ablation - Baseline |
+|---|---:|
+| Sample success rate | +0.186667 |
+| Sample mean return | +0.136843 |
+| Sample episode length | -32.826667 |
+| Argmax success rate | 0.000000 |
+
+## 로컬로 회수한 결과
+
+GCP에서 생성된 결과를 로컬로 내려받았다.
+
+- `fun-minigrid/results/week4_ablation_results.csv`
+- `fun-minigrid/results/week4_ablation_results.md`
+- `fun-minigrid/results/week4_ablation_summary.md`
+- `fun-minigrid/logs/ablation_fun/seed_1/`
+- `fun-minigrid/logs/ablation_fun/seed_11/`
+- `fun-minigrid/logs/ablation_fun/seed_44/`
+- `fun-minigrid/checkpoints/ablation_fun/seed_1/`
+- `fun-minigrid/checkpoints/ablation_fun/seed_11/`
+- `fun-minigrid/checkpoints/ablation_fun/seed_44/`
+- `fun-minigrid/figures/ablation_fun/eval_success_rate.png`
+- `fun-minigrid/figures/ablation_fun/eval_mean_return.png`
+- `fun-minigrid/figures/ablation_fun/eval_episode_length.png`
+
+결과 회수 후 GCP VM을 중지했다.
+
+```text
+fun-minigrid-2: TERMINATED
+instance-20260425-090526: TERMINATED
+```
+
+## 해석
+
+- 현재 MiniGrid DoorKey-5x5, 1000 episode, 3 seed 조건에서는 recurrent Manager memory를 제거한 ablation이 vanilla FuN baseline보다 sample 기준 평균 성능이 높았다.
+- sample success rate는 baseline `0.416667`에서 ablation `0.603333`으로 증가했다.
+- sample mean return은 baseline `0.203031`에서 ablation `0.339873`으로 증가했다.
+- sample episode length는 baseline `205.176667`에서 ablation `172.350000`으로 감소했다.
+- 이 결과는 작은 DoorKey-5x5 환경에서는 GRU Manager memory가 필수적이지 않거나, feedforward Manager가 더 단순해 짧은 학습 조건에서 더 안정적으로 최적화되었을 가능성을 시사한다.
+- 다만 baseline과 ablation 모두 argmax success rate는 `0.000000`이므로, 현재 정책은 deterministic argmax path보다 stochastic sampling에 의존한다.
+- seed 3개 결과이므로 통계적으로 강한 결론보다는 1차 ablation 결과로 해석해야 한다.
+
+## 다음 작업
+
+- `week4_ablation_summary.md` 내용을 보고서 결과 섹션 초안으로 정리한다.
+- 필요하면 DoorKey 더 큰 환경 또는 longer training에서 recurrent Manager의 장점이 나타나는지 재검증한다.
+- TransformerManager는 이번 ablation 결과 해석 이후 선택적 확장으로 진행한다.
