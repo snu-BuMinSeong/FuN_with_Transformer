@@ -79,6 +79,18 @@ EVAL_LOG_FIELDS = [
     "eval_mean_episode_length",
     "eval_std_episode_length",
     "eval_episode_seeds",
+    "eval_sample_success_rate",
+    "eval_sample_mean_return",
+    "eval_sample_std_return",
+    "eval_sample_mean_episode_length",
+    "eval_sample_std_episode_length",
+    "eval_sample_episode_seeds",
+    "eval_argmax_success_rate",
+    "eval_argmax_mean_return",
+    "eval_argmax_std_return",
+    "eval_argmax_mean_episode_length",
+    "eval_argmax_std_episode_length",
+    "eval_argmax_episode_seeds",
 ]
 
 

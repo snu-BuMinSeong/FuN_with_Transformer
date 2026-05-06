@@ -1,0 +1,35 @@
+# Two-stage DoorKey-6x6 protocol: Vanilla FuN seed 1 Stage 1.
+env_id: MiniGrid-DoorKey-6x6-v0
+render_mode: null
+seed: 1
+
+total_episodes: 5000
+max_steps: 250
+eval_interval: 50
+eval_episodes: 50
+
+gamma: 0.99
+learning_rate: 0.0003
+
+goal_update_interval: 10
+hidden_dim: 64
+goal_size: 16
+goal_dim: 16
+num_actions: 7
+manager_type: recurrent
+
+entropy_coef: 0.01
+value_loss_coef: 0.5
+manager_loss_coef: 0.1
+grad_clip_norm: 1.0
+
+action_mode: sample
+eval_action_modes:
+  - sample
+  - argmax
+moving_avg_window: 20
+log_interval: 50
+eval_seed_offset: 1000
+
+log_dir: logs/two_stage_doorkey6x6/baseline/seed_1/stage1_5000
+checkpoint_dir: checkpoints/two_stage_doorkey6x6/baseline/seed_1/stage1_5000
