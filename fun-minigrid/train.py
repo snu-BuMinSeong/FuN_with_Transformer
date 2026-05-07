@@ -169,6 +169,7 @@ def main() -> None:
         env_id=str(cfg.get("env_id", "MiniGrid-DoorKey-5x5-v0")),
         render_mode=cfg.get("render_mode"),
         seed=seed,
+        max_episode_steps=max_steps,
     )
     model = FuNModel(
         goal_update_interval=int(cfg.get("goal_update_interval", 10)),
