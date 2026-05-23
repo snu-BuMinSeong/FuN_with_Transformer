@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+from copy import deepcopy
 import json
 from pathlib import Path
 from typing import Any
@@ -144,7 +145,32 @@ def append_eval_log(log_path: str, eval_result: dict[str, Any]) -> None:
         writer.writerow(row)
 
 
+def _summary_payload_without_verbose_episode_fields(payload: dict[str, Any]) -> dict[str, Any]:
+    """Remove verbose per-episode debug fields before writing summary JSON."""
+    cleaned = deepcopy(payload)
+
+    def prune(obj: Any) -> None:
+        if isinstance(obj, dict):
+            obj.pop("episode_seeds", None)
+
+            episode_results = obj.get("episode_results")
+            if isinstance(episode_results, list):
+                for result in episode_results:
+                    if isinstance(result, dict):
+                        result.pop("actions", None)
+
+            for value in obj.values():
+                prune(value)
+        elif isinstance(obj, list):
+            for item in obj:
+                prune(item)
+
+    prune(cleaned)
+    return cleaned
+
+
 def write_json_summary(path: str, payload: dict[str, Any]) -> None:
     """Write a compact JSON summary file for one training run."""
     ensure_log_dir(path)
-    Path(path).write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    cleaned_payload = _summary_payload_without_verbose_episode_fields(payload)
+    Path(path).write_text(json.dumps(cleaned_payload, ensure_ascii=False, indent=2), encoding="utf-8")

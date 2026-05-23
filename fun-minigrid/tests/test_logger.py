@@ -116,7 +116,33 @@ def test_write_json_summary_writes_expected_payload() -> None:
     assert len(loaded["results"]) == 2
 
 
+def test_write_json_summary_omits_verbose_episode_fields() -> None:
+    summary_path = PROJECT_ROOT / "logs" / "test_compact_training_summary.json"
+    if summary_path.exists():
+        summary_path.unlink()
+
+    payload = {
+        "seed": 123,
+        "eval": {
+            "episode_seeds": [2001, 2002],
+            "episode_results": [
+                {"episode": 1, "total_reward": 1.0, "actions": [0, 1, 2]},
+                {"episode": 2, "total_reward": 0.0, "actions": [3, 4]},
+            ],
+        },
+    }
+    write_json_summary(str(summary_path), payload)
+
+    loaded = json.loads(summary_path.read_text(encoding="utf-8"))
+
+    assert "episode_seeds" not in loaded["eval"]
+    assert loaded["eval"]["episode_results"][0]["total_reward"] == 1.0
+    assert "actions" not in loaded["eval"]["episode_results"][0]
+    assert "actions" in payload["eval"]["episode_results"][0]
+
+
 if __name__ == "__main__":
     test_append_training_log_writes_expected_fields()
     test_write_json_summary_writes_expected_payload()
+    test_write_json_summary_omits_verbose_episode_fields()
     print("\nAll logger tests passed.")

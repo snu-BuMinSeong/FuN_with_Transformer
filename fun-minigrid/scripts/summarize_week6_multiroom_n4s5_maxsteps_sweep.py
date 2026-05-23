@@ -20,6 +20,7 @@ RUNS = [
     ("AblationManager", "ablation", 1, 250, "ablation_ms250_seed_1"),
     ("AblationManager", "ablation", 1, 500, "ablation_ms500_seed_1"),
     ("AblationManager", "ablation", 1, 750, "ablation_ms750_seed_1"),
+    ("AblationManager", "ablation", 1, 1000, "ablation_ms1000_seed_1"),
 ]
 
 TABLE_COLUMNS = [
@@ -296,12 +297,110 @@ def write_summary(rows: list[dict[str, Any]], path: Path) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def write_ms1000_followup(rows: list[dict[str, Any]]) -> None:
+    ablation_rows = [
+        row
+        for row in rows
+        if row["run_key"] == "ablation" and int(row["Max Steps"]) in {750, 1000}
+    ]
+    ablation_rows.sort(key=lambda row: int(row["Max Steps"]))
+    ms750 = next((row for row in ablation_rows if int(row["Max Steps"]) == 750), None)
+    ms1000 = next((row for row in ablation_rows if int(row["Max Steps"]) == 1000), None)
+
+    if ms750 is None or ms1000 is None:
+        train_signal_answer = "Cannot compare until both max_steps=750 and max_steps=1000 rows exist."
+        train_delta_text = ""
+    else:
+        train_delta = int(ms1000["Train Success Count"]) - int(ms750["Train Success Count"])
+        train_signal_answer = "Yes" if train_delta > 0 else "No"
+        train_delta_text = (
+            f"ms750={ms750['Train Success Count']}, "
+            f"ms1000={ms1000['Train Success Count']}, delta={train_delta}"
+        )
+
+    sample_positive = bool(ms1000 and float(ms1000["Final Sample Success"]) > 0.0)
+    argmax_positive = bool(ms1000 and float(ms1000["Final Argmax Success"]) > 0.0)
+    length_bound = bool(ms1000 and ms1000["time_limit_bound_final100"])
+
+    if sample_positive:
+        recommendation = (
+            "Continue N4-S5. Next run should extend AblationManager max_steps=1000 "
+            "to seeds 11 and 44."
+        )
+    elif ms750 is not None and ms1000 is not None and int(ms1000["Train Success Count"]) > int(ms750["Train Success Count"]):
+        recommendation = (
+            "N4-S5 still has only train reward signal. Consider one max_steps=1250 probe "
+            "only if compute budget is acceptable; otherwise lower difficulty to N3-S5 or N4-S4."
+        )
+    else:
+        recommendation = (
+            "Do not keep expanding N4-S5 under the current settings. Lower difficulty to N3-S5 "
+            "or N4-S4 before spending more compute."
+        )
+
+    result_lines = [
+        "# Week 6 MultiRoom-N4-S5 AblationManager ms1000 Follow-up",
+        "",
+        markdown_table(ablation_rows),
+        "",
+        "## Integrity",
+    ]
+    for row in ablation_rows:
+        result_lines.append(
+            "- "
+            f"max_steps={row['Max Steps']}: train_rows={row['train_rows']}, "
+            f"eval_rows={row['eval_rows']}, summary_final_episode={row['summary_final_episode']}, "
+            f"best.pt={row['Best Checkpoint Exists']}, last.pt={row['Last Checkpoint Exists']}, "
+            f"nonfinite={row['nonfinite']}, final100_time_limit_bound={row['time_limit_bound_final100']}"
+        )
+    result_lines.extend(
+        [
+            "",
+            "## Answers",
+            "",
+            f"A. Train reward signal increased from 750 to 1000: {train_signal_answer}. {train_delta_text}",
+            f"B. Sample eval success became > 0: {'Yes' if sample_positive else 'No'}.",
+            f"C. Argmax eval success became > 0: {'Yes' if argmax_positive else 'No'}.",
+            f"D. Episode length remains tied to max_steps: {'Yes' if length_bound else 'No'}.",
+            f"E. Continue N4-S5: {'Yes' if sample_positive else 'Not as the main path'}.",
+            "F. Lower difficulty: "
+            + ("No, extend seeds first." if sample_positive else "Yes, prefer N3-S5 or N4-S4."),
+            "",
+            "## Recommendation",
+            "",
+            recommendation,
+        ]
+    )
+    (RESULTS_DIR / "week6_multiroom_n4s5_ms1000_ablation_result.md").write_text(
+        "\n".join(result_lines) + "\n",
+        encoding="utf-8",
+    )
+
+    summary_lines = [
+        "# Week 6 MultiRoom-N4-S5 AblationManager ms1000 Summary",
+        "",
+        f"- Complete: {bool(ms1000 and ms1000['complete'])}",
+        f"- Train reward signal 750 -> 1000: {train_signal_answer}. {train_delta_text}",
+        f"- ms1000 sample eval success > 0: {sample_positive}",
+        f"- ms1000 argmax eval success > 0: {argmax_positive}",
+        f"- ms1000 final100 episode length tied to max_steps: {length_bound}",
+        f"- Recommendation: {recommendation}",
+        "",
+        markdown_table(ablation_rows),
+    ]
+    (RESULTS_DIR / "week6_multiroom_n4s5_ms1000_ablation_summary.md").write_text(
+        "\n".join(summary_lines) + "\n",
+        encoding="utf-8",
+    )
+
+
 def main() -> None:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     rows = [summarize_run(*run) for run in RUNS]
     write_csv(rows, RESULTS_DIR / "week6_multiroom_n4s5_maxsteps_sweep_results.csv")
     write_markdown(rows, RESULTS_DIR / "week6_multiroom_n4s5_maxsteps_sweep_results.md")
     write_summary(rows, RESULTS_DIR / "week6_multiroom_n4s5_maxsteps_sweep_summary.md")
+    write_ms1000_followup(rows)
 
 
 if __name__ == "__main__":
