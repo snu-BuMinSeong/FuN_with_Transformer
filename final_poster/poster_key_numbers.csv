@@ -1,0 +1,18 @@
+section,metric,vanilla_or_baseline,ablation,source,poster_use
+DoorKey-6x6 3000,mean sample success,0.423,0.993,results/doorkey6x6/week5_doorkey6x6_results_summary.md,main limited-budget comparison
+DoorKey-6x6 3000,mean argmax success,0.113,0.223,results/doorkey6x6/week5_doorkey6x6_results_summary.md,show sample-argmax gap
+DoorKey-6x6 two-stage,mean argmax success,0.943,0.943,results/doorkey6x6/week5_two_stage_doorkey6x6_v2_results.md,show larger-budget convergence
+MultiRoom N3-S5,best argmax success,1.000,1.000,results/multiroom_n3s5/multiroom_n3_s5_checkpoint_eval_summary.md,robustness result
+MultiRoom N3-S5,best argmax return,0.784,0.790,results/multiroom_n3s5/multiroom_n3_s5_checkpoint_eval_summary.md,tie-break metric
+MultiRoom N3-S5,best argmax episode length,14.400,14.000,results/multiroom_n3s5/multiroom_n3_s5_checkpoint_eval_summary.md,tie-break metric
+MultiRoom N4-S4,three-seed final sample success,1.000,1.000,results/multiroom_n4s4/multiroom_n4_s4_three_seed_process_summary.md,show final success tie
+MultiRoom N4-S4,three-seed final argmax success,1.000,1.000,results/multiroom_n4s4/multiroom_n4_s4_three_seed_process_summary.md,show final success tie
+MultiRoom N4-S4,sample success AUC,0.690,0.753,results/multiroom_n4s4/multiroom_n4_s4_three_seed_process_summary.md,main learning-speed result
+MultiRoom N4-S4,argmax success AUC,0.497,0.541,results/multiroom_n4s4/multiroom_n4_s4_three_seed_process_summary.md,main deterministic learning-speed result
+MultiRoom N4-S4,sample episode to 1.0 success,2366.667,2100.000,results/multiroom_n4s4/multiroom_n4_s4_three_seed_process_summary.md,threshold crossing
+MultiRoom N4-S4,argmax episode to 1.0 success,3033.333,2500.000,results/multiroom_n4s4/multiroom_n4_s4_three_seed_process_summary.md,threshold crossing
+N4-S4 hidden intervention,argmax success drop after hidden reset,0.030,N/A,results/multiroom_n4s4_hidden_intervention/hidden_intervention_analysis.md,mechanism diagnostic
+N4-S4 manager goal,argmax mean goal_delta_l2,0.0473,0.0402,results/multiroom_n4s4_manager_goal_analysis/manager_goal_results.md,goal stability diagnostic
+N4-S4 manager goal,argmax update action KL,1.0175,1.0328,results/multiroom_n4s4_manager_goal_analysis/manager_goal_results.md,goal-to-worker coupling
+MultiRoom N4-S5,max final eval success,0.000,0.000,results/multiroom_n4s5_boundary/week6_multiroom_n4s5_maxsteps_sweep_summary.md,boundary condition
+MultiRoom N4-S5,best reward-signal episodes,5,16,results/multiroom_n4s5_boundary/week6_multiroom_n4s5_maxsteps_sweep_summary.md,boundary condition

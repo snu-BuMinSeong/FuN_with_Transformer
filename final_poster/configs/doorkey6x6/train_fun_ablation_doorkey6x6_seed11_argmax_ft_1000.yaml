@@ -1,0 +1,38 @@
+# Low-entropy argmax fine-tuning full run for AblationManager DoorKey-6x6 seed 11.
+env_id: MiniGrid-DoorKey-6x6-v0
+render_mode: null
+seed: 11
+
+total_episodes: 1000
+max_steps: 250
+eval_interval: 50
+eval_episodes: 50
+
+gamma: 0.99
+learning_rate: 0.0001
+
+goal_update_interval: 10
+hidden_dim: 64
+goal_size: 16
+goal_dim: 16
+num_actions: 7
+manager_type: ablation
+
+entropy_coef: 0.003
+value_loss_coef: 0.5
+manager_loss_coef: 0.1
+grad_clip_norm: 1.0
+
+action_mode: sample
+eval_action_modes:
+  - sample
+  - argmax
+moving_avg_window: 20
+log_interval: 50
+eval_seed_offset: 1000
+
+resume_from_checkpoint: checkpoints/ablation_fun_doorkey6x6_3000/seed_11/best.pt
+resume_optimizer_state: false
+
+log_dir: logs/ablation_fun_doorkey6x6_argmax_ft_1000/seed_11
+checkpoint_dir: checkpoints/ablation_fun_doorkey6x6_argmax_ft_1000/seed_11

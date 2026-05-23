@@ -1,0 +1,18 @@
+# Week 6 MultiRoom-N4-S5 Max Steps Sweep Summary
+
+- Complete: True
+- First reward signal: AblationManager max_steps=500
+- Recommended next candidate: AblationManager max_steps=1000 (train reward signal only)
+- Runs with sample eval success > 0: 0
+- Runs with argmax eval success > 0: 0
+- Runs with nonfinite values: 0
+
+| Model | Seed | Max Steps | Train Success Count | Train Success Rate | Final100 Train Success | Final Sample Success | Final Argmax Success | Final Sample Return | Final Argmax Return | Final Sample Length | Final Argmax Length | Reward Signal Episodes | Best Checkpoint |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Vanilla FuN | 1 | 250 | 0 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 250.000000 | 250.000000 | 0 | checkpoints/multiroom_n4s5_maxsteps_sweep/baseline_ms250_seed_1/best.pt |
+| Vanilla FuN | 1 | 500 | 2 | 0.000400 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 500.000000 | 500.000000 | 2 | checkpoints/multiroom_n4s5_maxsteps_sweep/baseline_ms500_seed_1/best.pt |
+| Vanilla FuN | 1 | 750 | 5 | 0.001000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 750.000000 | 750.000000 | 5 | checkpoints/multiroom_n4s5_maxsteps_sweep/baseline_ms750_seed_1/best.pt |
+| AblationManager | 1 | 250 | 0 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 250.000000 | 250.000000 | 0 | checkpoints/multiroom_n4s5_maxsteps_sweep/ablation_ms250_seed_1/best.pt |
+| AblationManager | 1 | 500 | 2 | 0.000400 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 500.000000 | 500.000000 | 2 | checkpoints/multiroom_n4s5_maxsteps_sweep/ablation_ms500_seed_1/best.pt |
+| AblationManager | 1 | 750 | 6 | 0.001200 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 750.000000 | 750.000000 | 6 | checkpoints/multiroom_n4s5_maxsteps_sweep/ablation_ms750_seed_1/best.pt |
+| AblationManager | 1 | 1000 | 16 | 0.003200 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 1000.000000 | 1000.000000 | 16 | checkpoints/multiroom_n4s5_maxsteps_sweep/ablation_ms1000_seed_1/best.pt |

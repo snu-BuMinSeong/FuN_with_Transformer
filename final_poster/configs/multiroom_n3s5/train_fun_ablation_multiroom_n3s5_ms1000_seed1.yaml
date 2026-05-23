@@ -1,0 +1,35 @@
+# Week 6 MultiRoom-N3-S5 protocol: AblationManager seed 1, max_steps 1000.
+env_id: MiniGrid-MultiRoom-N3-S5-v0
+render_mode: null
+seed: 1
+
+total_episodes: 5000
+max_steps: 1000
+eval_interval: 100
+eval_episodes: 50
+
+gamma: 0.99
+learning_rate: 0.0003
+
+goal_update_interval: 10
+hidden_dim: 64
+goal_size: 16
+goal_dim: 16
+num_actions: 7
+manager_type: ablation
+
+entropy_coef: 0.01
+value_loss_coef: 0.5
+manager_loss_coef: 0.1
+grad_clip_norm: 1.0
+
+action_mode: sample
+eval_action_modes:
+  - sample
+  - argmax
+moving_avg_window: 20
+log_interval: 50
+eval_seed_offset: 1000
+
+log_dir: logs/multiroom_n3s5_seed1/ablation
+checkpoint_dir: checkpoints/multiroom_n3s5_seed1/ablation
